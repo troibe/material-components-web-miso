@@ -17,6 +17,7 @@ import           Control.Monad.IO.Class
 import Material.Button as MB
 import Material.Icon as MI
 import Material.IconButton as MIB
+import Material.Theme as MT
 
 -- | Type synonym for an application model
 type Model = Int
@@ -67,7 +68,7 @@ viewModel x = div_ [] [
   , Miso.text (ms x)
   , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
   , br_ []
-  , MI.icon [] "thumb_up"
+  , MI.icon [primary] "thumb_up"
   , br_ []
   , MIB.iconButton MIB.config "thumb_down"
   , link_
