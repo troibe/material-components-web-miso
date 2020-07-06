@@ -18,6 +18,7 @@ import Material.Button as MB
 import Material.Icon as MI
 import Material.IconButton as MIB
 import Material.Theme as MT
+import Material.HelperText as MHT
 
 -- | Type synonym for an application model
 type Model = Int
@@ -63,9 +64,9 @@ updateModel SayHelloWorld m = m <# do
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel x = div_ [] [
-  MB.text (MB.setOnClick AddOne$MB.config) "+"
-  , Miso.text (ms x)
+viewModel x = div_ []
+  [ MB.text (MB.setOnClick AddOne$MB.config) "+"
+  , MHT.helperText (MHT.setPersistent True$MHT.config) (show x)
   , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
   , br_ []
   , MI.icon [primary] "thumb_up"
