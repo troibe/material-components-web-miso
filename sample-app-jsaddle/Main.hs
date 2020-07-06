@@ -20,6 +20,7 @@ import Material.IconButton as MIB
 import Material.Theme as MT
 import Material.HelperText as MHT
 import Material.Elevation as ME
+import Material.Dialog as MD
 
 -- | Type synonym for an application model
 type Model = Int
@@ -73,6 +74,7 @@ viewModel x = div_ []
   , MI.icon [primary] "thumb_up"
   , br_ []
   , MIB.iconButton (MIB.setAttributes [ME.z10]$MIB.config) "thumb_down"
+  , MD.dialog (MD.setOpen True$MD.config) (MD.dialogContent (Just "Test") [] [])
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
