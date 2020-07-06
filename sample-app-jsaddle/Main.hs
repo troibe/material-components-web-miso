@@ -15,6 +15,7 @@ import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
 import Material.Button
+import Material.Icon
 
 -- | Type synonym for an application model
 type Model = Int
@@ -64,6 +65,8 @@ viewModel x = div_ [] [
   Material.Button.text (setOnClick AddOne$config) "+"
   , Miso.text (ms x)
   , Material.Button.text (setOnClick SubtractOne$config) "-"
+  , br_ []
+  , Material.Icon.icon [] "thumb_up"
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
