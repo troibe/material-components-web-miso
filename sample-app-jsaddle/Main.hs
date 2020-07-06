@@ -31,6 +31,7 @@ data Action
   | SubtractOne
   | NoOp
   | SayHelloWorld
+  | Closed
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -63,6 +64,7 @@ updateModel SubtractOne m = noEff (m - 1)
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do
   liftIO (putStrLn "Hello World") >> pure NoOp
+updateModel Closed _ = noEff 0
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
@@ -74,7 +76,11 @@ viewModel x = div_ []
   , MI.icon [primary] "thumb_up"
   , br_ []
   , MIB.iconButton (MIB.setAttributes [ME.z10]$MIB.config) "thumb_down"
-  , MD.dialog (MD.setOpen True$MD.config) (MD.dialogContent (Just "Test") [] [])
+  , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
+    [ MB.text (MB.setOnClick Closed$MB.config) "Cancel"
+    , MB.text (MB.setOnClick Closed$MB.config) "Discard"
+    ]
+  )
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
