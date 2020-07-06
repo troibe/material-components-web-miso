@@ -14,8 +14,9 @@ import qualified Network.Wai.Handler.Warp         as Warp
 import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
-import Material.Button
-import Material.Icon
+import Material.Button as MB
+import Material.Icon as MI
+import Material.IconButton as MIB
 
 -- | Type synonym for an application model
 type Model = Int
@@ -62,11 +63,13 @@ updateModel SayHelloWorld m = m <# do
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel x = div_ [] [
-  Material.Button.text (setOnClick AddOne$config) "+"
+  MB.text (MB.setOnClick AddOne$MB.config) "+"
   , Miso.text (ms x)
-  , Material.Button.text (setOnClick SubtractOne$config) "-"
+  , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
   , br_ []
-  , Material.Icon.icon [] "thumb_up"
+  , MI.icon [] "thumb_up"
+  , br_ []
+  , MIB.iconButton MIB.config "thumb_down"
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
