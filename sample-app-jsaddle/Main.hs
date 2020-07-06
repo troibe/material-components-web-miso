@@ -14,6 +14,7 @@ import qualified Network.Wai.Handler.Warp         as Warp
 import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
+import qualified Data.ByteString.Lazy as B
 import Material.Button as MB
 import Material.Icon as MI
 import Material.IconButton as MIB
@@ -36,9 +37,10 @@ data Action
 
 #ifndef __GHCJS__
 runApp :: JSM () -> IO ()
-runApp f =
-  Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) =<<
-    JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) JSaddle.jsaddleApp
+runApp f = do
+  bString <- B.readFile "material-components-web-elm.min.js"
+  jSaddle <- JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) (JSaddle.jsaddleAppWithJs (B.append (JSaddle.jsaddleJs False) bString))
+  Warp.runSettings (Warp.setPort 8081 (Warp.setTimeout 3600 Warp.defaultSettings)) jSaddle
 #else
 runApp :: IO () -> IO ()
 runApp app = app
