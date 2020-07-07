@@ -13,6 +13,7 @@ import Miso.String
 import Miso.Html.Event
 import Miso.Event.Decoder
 import Data.Maybe
+import qualified Data.List as List
 
 
 {-| Configuration of a dialog
@@ -152,7 +153,7 @@ contentElt (Content { content=content }) =
 
 actionsElt :: Content msg -> Maybe (View msg)
 actionsElt (Content { actions=actions }) =
-    if Prelude.length actions==0 then
+    if List.null actions then
         Nothing
 
     else
