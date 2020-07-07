@@ -114,6 +114,7 @@ viewModel x = div_ []
               [ MTY.body2
               , MT.textSecondaryOnBackground
               , style_ $ M.singleton "padding" "0 1rem 0.5rem 1rem"
+              , style_ $ M.singleton "margin" "0"
               ]
               [ Miso.text "Lorem ipsum..."] ]
         ]
