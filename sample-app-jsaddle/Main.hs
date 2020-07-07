@@ -26,6 +26,7 @@ import Material.Dialog as MD
 import Material.Card as MC
 import Material.Typography as MTY
 import Material.TopAppBar as MTAB
+import Material.LinearProgress as MLP
 
 -- | Type synonym for an application model
 type Model = Int
@@ -97,6 +98,9 @@ viewModel x = div_ []
       , MB.text (MB.setOnClick Closed$MB.config) "Discard"
       ]
     )
+    , br_ []
+    , MLP.indeterminate MLP.config
+    , br_ []
     , MC.card ( MC.setAttributes
                   [ style_ $ M.singleton "margin" "48px 0"
                   , style_ $ M.singleton "width" "350px"
