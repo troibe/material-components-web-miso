@@ -15,6 +15,7 @@ import           Network.WebSockets
 #endif
 import           Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as B
+import qualified Data.Map as M
 import Material.Button as MB
 import Material.Icon as MI
 import Material.IconButton as MIB
@@ -22,6 +23,8 @@ import Material.Theme as MT
 import Material.HelperText as MHT
 import Material.Elevation as ME
 import Material.Dialog as MD
+import Material.Card as MC
+import Material.Typography as MTY
 
 -- | Type synonym for an application model
 type Model = Int
@@ -83,6 +86,41 @@ viewModel x = div_ []
     , MB.text (MB.setOnClick Closed$MB.config) "Discard"
     ]
   )
+  , MC.card ( MC.setAttributes
+                [ style_ $ M.singleton "margin" "48px 0"
+                , style_ $ M.singleton "width" "350px"
+                ]
+              $ MC.config )
+    MC.Content
+      { blocks = 
+        [ MC.Block $
+          div_
+            [ style_ $ M.singleton "padding" "1rem" ]
+            [ h2_ 
+              [ MTY.headline6
+              , style_ $ M.singleton "margin" "0"
+              ]
+              [ Miso.text "Title" ]
+            , h3_ 
+              [ MTY.subtitle2
+              , MT.textSecondaryOnBackground
+              , style_ $ M.singleton "margin" "0"
+              ]
+              [ Miso.text "Subtitle" ]
+            ]
+        , MC.Block $
+          div_ []
+            [ p_ 
+              [ MTY.body2
+              , MT.textSecondaryOnBackground
+              , style_ $ M.singleton "padding" "0 1rem 0.5rem 1rem"
+              ]
+              [ Miso.text "Lorem ipsum..."] ]
+        ]
+      , actions =
+        Just $
+          MC.cardActions [ MC.button MB.config "Visit" ] [MC.icon MIB.config "favorite"] 
+      }
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"

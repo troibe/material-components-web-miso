@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Material.Button
-    ( Config, config
+    ( Config(..), config
     , setOnClick
     , setIcon, setTrailingIcon
     , setDisabled

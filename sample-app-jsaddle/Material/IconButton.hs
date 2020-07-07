@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Material.IconButton
-    ( Config, config
+    ( Config(..), config
     , setOnClick
     , setDisabled
     , setLabel
@@ -12,7 +12,7 @@ module Material.IconButton
 import Miso.Html
 import Miso.Html.Event
 import Miso.String
-import Material.IconButton.Internal (Config(..))
+import Material.IconButton.Internal
 import Data.Maybe
 
 
