@@ -40,7 +40,7 @@ runApp :: JSM () -> IO ()
 runApp f = do
   bString <- B.readFile "material-components-web-elm.min.js"
   jSaddle <- JSaddle.jsaddleOr defaultConnectionOptions (f >> syncPoint) (JSaddle.jsaddleAppWithJs (B.append (JSaddle.jsaddleJs False) bString))
-  Warp.runSettings (Warp.setPort 8081 (Warp.setTimeout 3600 Warp.defaultSettings)) jSaddle
+  Warp.runSettings (Warp.setPort 8080 (Warp.setTimeout 3600 Warp.defaultSettings)) jSaddle
 #else
 runApp :: IO () -> IO ()
 runApp app = app
