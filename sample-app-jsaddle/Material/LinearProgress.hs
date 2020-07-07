@@ -169,8 +169,9 @@ bufferProp variant =
 
 
 reverseProp :: Config msg -> Maybe (Attribute msg)
-reverseProp Config{ Material.LinearProgress.reverse=reverse } =
-    Just (boolProp "reverse" reverse)
+reverseProp Config{ Material.LinearProgress.reverse=reverse } = case reverse of
+    False -> Nothing
+    True -> Just (boolProp "reverse" reverse)
 
 
 closedProp :: Config msg -> Maybe (Attribute msg)
