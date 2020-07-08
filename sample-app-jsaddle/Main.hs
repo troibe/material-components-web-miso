@@ -27,6 +27,7 @@ import Material.Card as MC
 import Material.Typography as MTY
 import Material.TopAppBar as MTAB
 import Material.LinearProgress as MLP
+import Material.Checkbox as MCB
 
 -- | Type synonym for an application model
 type Model = Int
@@ -100,6 +101,10 @@ viewModel x = div_ []
     )
     , br_ []
     , MLP.indeterminate MLP.config
+    , br_ []
+    , MCB.checkbox (MCB.setOnChange SayHelloWorld$MCB.config)
+    , br_ []
+    , MCB.checkbox (MCB.config)
     , br_ []
     , MC.card ( MC.setAttributes
                   [ style_ $ M.singleton "margin" "48px 0"
