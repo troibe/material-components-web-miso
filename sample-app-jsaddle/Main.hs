@@ -28,6 +28,8 @@ import Material.Typography as MTY
 import Material.TopAppBar as MTAB
 import Material.LinearProgress as MLP
 import Material.Checkbox as MCB
+import Material.Drawer.Permanent as MDP
+import Material.Drawer.Dismissible as MDD
 
 -- | Type synonym for an application model
 type Model = Int
@@ -76,73 +78,96 @@ updateModel Closed _ = noEff 0
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel x = div_ []
-  [ MTAB.regular MTAB.config
-    [ MTAB.row []
-      [ MTAB.section [ MTAB.alignStart ]
-        [ MIB.iconButton
-          (MIB.setAttributes [MTAB.navigationIcon] $ MIB.config) "menu"
-        , span_ [ MTAB.title ] [ Miso.text "Title"]
+viewModel x = div_ 
+  [ style_ $ M.singleton "display" "-ms-flexbox"
+  , style_ $ M.singleton "display" "flex"
+  , style_ $ M.singleton "height" "100vh" ]
+
+  [ MDP.drawer MDP.config 
+    [ MDP.content [] 
+      [ MDP.header []
+        [ h3_ [ MDP.title ] [ Miso.text "Mail" ]
+        , h6_ [ MDP.subtitle ] [ Miso.text "email@material.io" ]
         ]
       ]
     ]
-  , div_ [style_ $ M.singleton "padding-top" "64px"]
-    [ MB.text (MB.setOnClick AddOne$MB.config) "+"
-    , MHT.helperText (MHT.setPersistent True$MHT.config) (show x)
-    , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
-    , br_ []
-    , MI.icon [primary] "thumb_up"
-    , br_ []
-    , MIB.iconButton (MIB.setAttributes [ME.z10]$MIB.config) "thumb_down"
-    , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
-      [ MB.text (MB.setOnClick Closed$MB.config) "Cancel"
-      , MB.text (MB.setOnClick Closed$MB.config) "Discard"
-      ]
-    )
-    , br_ []
-    , MLP.indeterminate MLP.config
-    , br_ []
-    , MCB.checkbox (MCB.setOnChange SayHelloWorld$MCB.config)
-    , br_ []
-    , MCB.checkbox (MCB.config)
-    , br_ []
-    , MC.card ( MC.setAttributes
-                  [ style_ $ M.singleton "margin" "48px 0"
-                  , style_ $ M.singleton "width" "350px"
-                  ]
-                $ MC.config )
-      MC.Content
-        { blocks = 
-          [ MC.Block $
-            div_
-              [ style_ $ M.singleton "padding" "1rem" ]
-              [ h2_ 
-                [ MTY.headline6
-                , style_ $ M.singleton "margin" "0"
-                ]
-                [ Miso.text "Title" ]
-              , h3_ 
-                [ MTY.subtitle2
-                , MT.textSecondaryOnBackground
-                , style_ $ M.singleton "margin" "0"
-                ]
-                [ Miso.text "Subtitle" ]
-              ]
-          , MC.Block $
-            div_ []
-              [ p_ 
-                [ MTY.body2
-                , MT.textSecondaryOnBackground
-                , style_ $ M.singleton "padding" "0 1rem 0.5rem 1rem"
-                , style_ $ M.singleton "margin" "0"
-                ]
-                [ Miso.text "Lorem ipsum..."] ]
+  , div_ [ MDD.appContent ]
+    [ MTAB.regular MTAB.config
+      [ MTAB.row []
+        [ MTAB.section [ MTAB.alignStart ]
+          [ MIB.iconButton
+            (MIB.setAttributes [MTAB.navigationIcon] $ MIB.config) "menu"
+          , span_ [ MTAB.title ] [ Miso.text "Title"]
           ]
-        , actions =
-          Just $
-            MC.cardActions [ MC.button MB.config "Visit" ] [MC.icon MIB.config "favorite"] 
-        }
+        ]
       ]
+    , div_ 
+      [ style_ $ M.singleton "padding-left" "18px"
+      , style_ $ M.singleton "padding-right" "18px"
+      , style_ $ M.singleton "overflow" "auto"
+      , style_ $ M.singleton "height" "100%"
+      , style_ $ M.singleton "box-sizing" "border-box"
+      , MTAB.fixedAdjust
+      , MDD.appContent
+      ]
+
+      [ MB.text (MB.setOnClick AddOne$MB.config) "+"
+      , MHT.helperText (MHT.setPersistent True$MHT.config) (show x)
+      , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
+      , br_ []
+      , MI.icon [primary] "thumb_up"
+      , br_ []
+      , MIB.iconButton (MIB.setAttributes [ME.z10]$MIB.config) "thumb_down"
+      , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
+        [ MB.text (MB.setOnClick Closed$MB.config) "Cancel"
+        , MB.text (MB.setOnClick Closed$MB.config) "Discard"
+        ]
+      )
+      , br_ []
+      , MLP.indeterminate MLP.config
+      , br_ []
+      , MCB.checkbox (MCB.setOnChange SayHelloWorld$MCB.config)
+      , br_ []
+      , MCB.checkbox (MCB.config)
+      , br_ []
+      , MC.card ( MC.setAttributes
+                    [ style_ $ M.singleton "margin" "48px 0"
+                    , style_ $ M.singleton "width" "350px"
+                    ]
+                  $ MC.config )
+        MC.Content
+          { blocks = 
+            [ MC.Block $
+              div_
+                [ style_ $ M.singleton "padding" "1rem" ]
+                [ h2_ 
+                  [ MTY.headline6
+                  , style_ $ M.singleton "margin" "0"
+                  ]
+                  [ Miso.text "Title" ]
+                , h3_ 
+                  [ MTY.subtitle2
+                  , MT.textSecondaryOnBackground
+                  , style_ $ M.singleton "margin" "0"
+                  ]
+                  [ Miso.text "Subtitle" ]
+                ]
+            , MC.Block $
+              div_ []
+                [ p_ 
+                  [ MTY.body2
+                  , MT.textSecondaryOnBackground
+                  , style_ $ M.singleton "padding" "0 1rem 0.5rem 1rem"
+                  , style_ $ M.singleton "margin" "0"
+                  ]
+                  [ Miso.text "Lorem ipsum..."] ]
+            ]
+          , actions =
+            Just $
+              MC.cardActions [ MC.button MB.config "Visit" ] [MC.icon MIB.config "favorite"] 
+          }
+        ]
+    ]
   , link_
     [ rel_ "stylesheet"
     , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
