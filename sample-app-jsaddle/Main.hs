@@ -117,7 +117,7 @@ viewModel x = div_
       , br_ []
       , MI.icon [primary] "thumb_up"
       , br_ []
-      , MIB.iconButton (MIB.setAttributes [ME.z10]$MIB.config) "thumb_down"
+      , MIB.iconButton (MIB.config) "thumb_down"
       , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
         [ MB.text (MB.setOnClick Closed$MB.config) "Cancel"
         , MB.text (MB.setOnClick Closed$MB.config) "Discard"
@@ -133,6 +133,7 @@ viewModel x = div_
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
                     , style_ $ M.singleton "width" "350px"
+                    , ME.z10
                     ]
                   $ MC.config )
         MC.Content
