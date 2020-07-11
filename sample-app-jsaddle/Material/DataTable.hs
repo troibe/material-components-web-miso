@@ -11,7 +11,7 @@ module Material.DataTable
     , checkboxCell
     ) where
 
-import Miso
+import qualified Miso
 import qualified Miso.String
 import Data.Maybe
 import qualified Material.Checkbox as Checkbox
@@ -53,7 +53,7 @@ setAttributes additionalAttributes config_ =
 
 {-| Data table view function
 -}
-dataTable :: Config msg -> [Row msg] -> [Row msg] -> View msg
+dataTable :: Config msg -> [Row msg] -> [Row msg] -> Miso.View msg
 dataTable (config_@Config { additionalAttributes=additionalAttributes }) thead tbody =
     Miso.nodeHtml "mdc-data-table"
         (dataTableCs : additionalAttributes)
@@ -71,17 +71,17 @@ dataTable (config_@Config { additionalAttributes=additionalAttributes }) thead t
 
 dataTableCs :: Miso.Attribute msg
 dataTableCs =
-    class_ "mdc-data-table"
+    Miso.class_"mdc-data-table"
 
 
 dataTableTableCs :: Maybe (Miso.Attribute msg)
 dataTableTableCs =
-    Just (class_ "mdc-data-table__table")
+    Just (Miso.class_"mdc-data-table__table")
 
 
 dataTableContentCs :: Miso.Attribute msg
 dataTableContentCs =
-    class_ "mdc-data-table__content"
+    Miso.class_"mdc-data-table__content"
 
 
 ariaLabelAttr :: Config msg -> Maybe (Miso.Attribute msg)
@@ -117,30 +117,30 @@ selected =
 
 dataTableRowSelectedCs :: Miso.Attribute msg
 dataTableRowSelectedCs =
-    class_ "mdc-data-table__row--selected"
+    Miso.class_"mdc-data-table__row--selected"
 
 
-headerRow :: Row msg -> View msg
+headerRow :: Row msg -> Miso.View msg
 headerRow (Row { attributes=attributes, nodes=nodes }) =
     Miso.tr_ (dataTableHeaderRowCs : attributes) (map headerCell nodes)
 
 
 dataTableHeaderRowCs :: Miso.Attribute msg
 dataTableHeaderRowCs =
-    class_ "mdc-data-table__header-row"
+    Miso.class_"mdc-data-table__header-row"
 
 
-bodyRow :: Row msg -> View msg
+bodyRow :: Row msg -> Miso.View msg
 bodyRow (Row { attributes=attributes, nodes=nodes }) =
     Miso.tr_ (dataTableRowCs : attributes) (map bodyCell nodes)
 
 
 dataTableRowCs :: Miso.Attribute msg
 dataTableRowCs =
-    class_ "mdc-data-table__row"
+    Miso.class_"mdc-data-table__row"
 
 
-headerCell :: Cell msg -> View msg
+headerCell :: Cell msg -> Miso.View msg
 headerCell cell_ =
     case cell_ of
         Cell { cNumeric=numeric, cAttributes=attributes, cNodes=nodes } ->
@@ -170,7 +170,7 @@ headerCell cell_ =
                         config__@Material.Checkbox.Internal.Config{ Material.Checkbox.Internal.additionalAttributes=additionalAttributes } ->
                             ccConfig_
                                 {   Material.Checkbox.Internal.additionalAttributes =
-                                    class_ "mdc-data-table__row-checkbox"
+                                    Miso.class_"mdc-data-table__row-checkbox"
                                     : additionalAttributes
                                 }
                     )
@@ -179,7 +179,7 @@ headerCell cell_ =
 
 dataTableHeaderCellCs :: Maybe (Miso.Attribute msg)
 dataTableHeaderCellCs =
-    Just (class_ "mdc-data-table__header-cell")
+    Just (Miso.class_"mdc-data-table__header-cell")
 
 
 columnHeaderRoleAttr :: Maybe (Miso.Attribute msg)
@@ -195,7 +195,7 @@ colScopeAttr =
 dataTableHeaderCellNumericCs :: Bool -> Maybe (Miso.Attribute msg)
 dataTableHeaderCellNumericCs numeric =
     if numeric then
-        Just (class_ "mdc-data-table__header-cell--numeric")
+        Just (Miso.class_"mdc-data-table__header-cell--numeric")
 
     else
         Nothing
@@ -203,10 +203,10 @@ dataTableHeaderCellNumericCs numeric =
 
 dataTableHeaderCellCheckboxCs :: Maybe (Miso.Attribute msg)
 dataTableHeaderCellCheckboxCs =
-    Just (class_ "mdc-data-table__header-cell--checkbox")
+    Just (Miso.class_"mdc-data-table__header-cell--checkbox")
 
 
-bodyCell :: Cell msg -> View msg
+bodyCell :: Cell msg -> Miso.View msg
 bodyCell cell_ =
     case cell_ of
         Cell { cNumeric=cNumeric, cAttributes=cAttributes, cNodes=cNodes } ->
@@ -232,7 +232,7 @@ bodyCell cell_ =
                         config__@Material.Checkbox.Internal.Config{ Material.Checkbox.Internal.additionalAttributes=additionalAttributes }  ->
                             config__
                                     {    Material.Checkbox.Internal.additionalAttributes =
-                                        class_ "mdc-data-table__row-checkbox"
+                                        Miso.class_"mdc-data-table__row-checkbox"
                                         : additionalAttributes
                                     }
                     )
@@ -245,7 +245,7 @@ data Cell msg
     = Cell
         { cNumeric :: Bool
         , cAttributes :: [Miso.Attribute msg]
-        , cNodes :: [View msg]
+        , cNodes :: [Miso.View msg]
         }
     | CheckboxCell
         { ccConfig_ :: Material.Checkbox.Internal.Config msg
@@ -255,14 +255,14 @@ data Cell msg
 
 {-| Data table cell
 -}
-cell :: [Miso.Attribute msg] -> [View msg] -> Cell msg
+cell :: [Miso.Attribute msg] -> [Miso.View msg] -> Cell msg
 cell attributes nodes =
     Cell { cNumeric = False, cAttributes = attributes, cNodes = nodes }
 
 
 {-| Numeric data table cell (right-aligned contents)
 -}
-numericCell :: [Miso.Attribute msg] -> [View msg] -> Cell msg
+numericCell :: [Miso.Attribute msg] -> [Miso.View msg] -> Cell msg
 numericCell attributes nodes =
     Cell { cNumeric = True, cAttributes = attributes, cNodes = nodes }
 
@@ -276,13 +276,13 @@ checkboxCell attributes config_ =
 
 dataTableCellCs :: Maybe (Miso.Attribute msg)
 dataTableCellCs =
-    Just (class_ "mdc-data-table__cell")
+    Just (Miso.class_"mdc-data-table__cell")
 
 
 dataTableCellNumericCs :: Bool -> Maybe (Miso.Attribute msg)
 dataTableCellNumericCs numeric =
     if numeric then
-        Just (class_ "mdc-data-table__cell--numeric")
+        Just (Miso.class_"mdc-data-table__cell--numeric")
 
     else
         Nothing
@@ -290,4 +290,4 @@ dataTableCellNumericCs numeric =
 
 dataTableCellCheckboxCs :: Maybe (Miso.Attribute msg)
 dataTableCellCheckboxCs =
-    Just (class_ "mdc-data-table__cell--checkbox")
+    Just (Miso.class_"mdc-data-table__cell--checkbox")
