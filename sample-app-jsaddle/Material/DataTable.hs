@@ -15,7 +15,7 @@ import qualified Miso
 import qualified Miso.String
 import Data.Maybe
 import qualified Material.Checkbox as Checkbox
-import qualified Material.Checkbox.Internal
+import qualified Material.Checkbox.Internal as Checkbox.Internal
 
 
 {-| Configuration of a data table
@@ -167,9 +167,9 @@ headerCell cell_ =
                 )
                 [ Checkbox.checkbox
                     (case ccConfig_ of
-                        config__@Material.Checkbox.Internal.Config{ Material.Checkbox.Internal.additionalAttributes=additionalAttributes } ->
+                        config__@Checkbox.Internal.Config{ Checkbox.Internal.additionalAttributes=additionalAttributes } ->
                             ccConfig_
-                                {   Material.Checkbox.Internal.additionalAttributes =
+                                {   Checkbox.Internal.additionalAttributes =
                                     Miso.class_"mdc-data-table__row-checkbox"
                                     : additionalAttributes
                                 }
@@ -229,9 +229,9 @@ bodyCell cell_ =
                 )
                 [ Checkbox.checkbox
                     (case ccConfig_ of
-                        config__@Material.Checkbox.Internal.Config{ Material.Checkbox.Internal.additionalAttributes=additionalAttributes }  ->
+                        config__@Checkbox.Internal.Config{ Checkbox.Internal.additionalAttributes=additionalAttributes }  ->
                             config__
-                                    {    Material.Checkbox.Internal.additionalAttributes =
+                                    {    Checkbox.Internal.additionalAttributes =
                                         Miso.class_"mdc-data-table__row-checkbox"
                                         : additionalAttributes
                                     }
@@ -248,7 +248,7 @@ data Cell msg
         , cNodes :: [Miso.View msg]
         }
     | CheckboxCell
-        { ccConfig_ :: Material.Checkbox.Internal.Config msg
+        { ccConfig_ :: Checkbox.Internal.Config msg
         , ccAttributes :: [Miso.Attribute msg]
         }
 
