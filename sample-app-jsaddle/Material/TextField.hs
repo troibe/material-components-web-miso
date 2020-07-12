@@ -336,15 +336,15 @@ disabledCs (Config { disabled=disabled }) =
 withLeadingIconCs :: Config msg -> Maybe (Miso.Attribute msg)
 withLeadingIconCs (Config { leadingIcon=leadingIcon }) =
     case leadingIcon of
-        Nothing -> Just (Miso.class_ "mdc-text-field--with-leading-icon")
-        _ -> Nothing
+        Nothing -> Nothing
+        _ -> Just (Miso.class_ "mdc-text-field--with-leading-icon")
 
 
 withTrailingIconCs :: Config msg -> Maybe (Miso.Attribute msg)
 withTrailingIconCs (Config { trailingIcon=trailingIcon }) =
     case trailingIcon of
-        Nothing -> Just (Miso.class_ "mdc-text-field--with-trailing-icon")
-        _ -> Nothing
+        Nothing -> Nothing
+        _ -> Just (Miso.class_ "mdc-text-field--with-trailing-icon")
 
 
 requiredProp :: Config msg -> Maybe (Miso.Attribute msg)
