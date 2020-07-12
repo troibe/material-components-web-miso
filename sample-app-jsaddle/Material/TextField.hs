@@ -476,10 +476,7 @@ inputCs =
 
 patternProp :: Config msg -> Maybe (Miso.Attribute msg)
 patternProp (Config { pattern=pattern }) =
-    Just
-        (Miso.textProp "pattern"
-            (Maybe.fromMaybe "" (Maybe.maybe Nothing (\x->Just(Miso.String.toMisoString x)) pattern))
-        )
+    Maybe.maybe Nothing (\x->Just(Miso.textProp "pattern" (Miso.String.toMisoString x))) pattern
 
 
 typeAttr :: Config msg -> Maybe (Miso.Attribute msg)
