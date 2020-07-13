@@ -30,6 +30,7 @@ import Material.LinearProgress as MLP
 import Material.Checkbox as MCB
 import Material.Drawer.Permanent as MDP
 import Material.Drawer.Dismissible as MDD
+import Material.TextField as MTF
 
 -- | Type synonym for an application model
 type Model = Int
@@ -129,6 +130,8 @@ viewModel x = div_
       , MCB.checkbox (MCB.setOnChange SayHelloWorld$MCB.config)
       , br_ []
       , MCB.checkbox (MCB.config)
+      , br_ []
+      , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
