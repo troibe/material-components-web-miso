@@ -32,6 +32,7 @@ import Material.Drawer.Permanent as MDP
 import Material.Drawer.Dismissible as MDD
 import Material.TextField as MTF
 import Material.Fab as Fab
+import Material.Radio as Radio
 
 -- | Type synonym for an application model
 type Model = Int
@@ -132,6 +133,11 @@ viewModel x = div_
       , br_ []
       , MCB.checkbox (MCB.config)
       , br_ []
+      , Radio.radio
+        ( Radio.setOnChange SayHelloWorld
+        $ Radio.setChecked False
+        $ Radio.config
+        )
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
       , MC.card ( MC.setAttributes
