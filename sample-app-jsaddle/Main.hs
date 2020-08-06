@@ -138,6 +138,7 @@ viewModel x = div_
         $ Radio.setChecked False
         $ Radio.config
         )
+      , br_ []
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
       , MC.card ( MC.setAttributes
