@@ -31,6 +31,7 @@ import Material.Checkbox as MCB
 import Material.Drawer.Permanent as MDP
 import Material.Drawer.Dismissible as MDD
 import Material.TextField as MTF
+import Material.Fab as Fab
 
 -- | Type synonym for an application model
 type Model = Int
@@ -171,6 +172,16 @@ viewModel x = div_
               MC.cardActions [ MC.button MB.config "Visit" ] [MC.icon MIB.config "favorite"] 
           }
         ]
+      , Fab.fab
+        ( Fab.setOnClick SayHelloWorld
+        $ Fab.setAttributes
+          [ style_ $ M.singleton "position" "fixed"
+          , style_ $ M.singleton "bottom" "2rem"
+          , style_ $ M.singleton "right" "2rem"
+          ]
+        $ Fab.config
+        )
+        "favorite"
     ]
   , link_
     [ rel_ "stylesheet"
