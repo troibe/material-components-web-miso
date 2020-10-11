@@ -13,7 +13,7 @@ module Material.DataTable
 
 import qualified Miso
 import qualified Miso.String
-import Data.Maybe
+import qualified Data.Maybe as Maybe
 import qualified Material.Checkbox as Checkbox
 import qualified Material.Checkbox.Internal as Checkbox.Internal
 
@@ -145,7 +145,7 @@ headerCell cell_ =
     case cell_ of
         Cell { cNumeric=numeric, cAttributes=attributes, cNodes=nodes } ->
             Miso.th_
-                (mapMaybe id
+                (Maybe.mapMaybe id
                     [ dataTableHeaderCellCs
                     , columnHeaderRoleAttr
                     , colScopeAttr
@@ -157,7 +157,7 @@ headerCell cell_ =
 
         CheckboxCell { ccAttributes=ccAttributes, ccConfig_=ccConfig_ } ->
             Miso.th_
-                (mapMaybe id
+                (Maybe.mapMaybe id
                     [ dataTableHeaderCellCs
                     , columnHeaderRoleAttr
                     , colScopeAttr
