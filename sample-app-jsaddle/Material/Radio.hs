@@ -11,8 +11,6 @@ module Material.Radio
 
 import qualified Miso
 import qualified Data.Maybe as Maybe
-import Control.Exception
-import System.IO.Unsafe
 
 
 {-| Radio button configuration
@@ -136,27 +134,7 @@ disabledProp (Config { disabled=disabled }) =
 
 changeHandler :: Config msg -> Maybe (Miso.Attribute msg)
 changeHandler (Config { checked=checked, onChange=onChange }) =
-    -- Note: MDCList choses to send a change event to all checkboxes, thus we
-    -- have to check here if the state actually changed.
-    case onChange of
-        Nothing -> Nothing
-        Just msg ->
-            unsafePerformIO$catch (
-                return (
-                    Just (
-                        Miso.on "change" Miso.checkedDecoder (\(Miso.Checked checked_) ->
-                                if (checked_ && not checked) || (not checked_ && checked) then
-                                    msg
-
-                                else
-                                    error "not applicable"
-                            )
-                        )
-                    )   
-                ) ex
-                where
-                    ex :: SomeException -> IO (Maybe (Miso.Attribute msg))
-                    ex _ = return Nothing
+    Maybe.maybe Nothing (\x -> Just( Miso.on "change" Miso.emptyDecoder (const x))) onChange
 
 
 nativeControlElt :: Config msg -> Miso.View msg

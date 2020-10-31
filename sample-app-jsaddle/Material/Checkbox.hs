@@ -14,9 +14,7 @@ module Material.Checkbox
 import qualified Miso
 import Miso.Svg.Element
 import Miso.Svg.Attribute
-import Control.Exception
-import System.IO.Unsafe
-import Data.Maybe
+import Data.Maybe as Maybe
 import Material.Checkbox.Internal
 
 
@@ -156,30 +154,7 @@ disabledProp Config{ disabled=disabled } =
 
 changeHandler :: Config msg -> Maybe (Miso.Attribute msg)
 changeHandler Config{ state=state, onChange=onChange } =
-    -- Note: MDCList choses to send a change event to all checkboxes, thus we
-    -- have to check here if the state actually changed.
-    case onChange of
-        Nothing -> Nothing
-        Just msg ->
-            unsafePerformIO$catch (
-                return (
-                    Just (
-                        Miso.on "change" Miso.checkedDecoder (\(Miso.Checked isChecked) ->
-                                if
-                                    (isChecked && state /= Just Checked)
-                                        || (not isChecked && state /= Just Unchecked)
-                                then
-                                    msg
-
-                                else
-                                    error "not applicable"
-                            )
-                        )
-                    )   
-                ) ex
-                where
-                    ex :: SomeException -> IO (Maybe (Miso.Attribute msg))
-                    ex _ = return Nothing
+    Maybe.maybe Nothing (\x -> Just( Miso.on "change" Miso.emptyDecoder (const x))) onChange
 
 
 nativeControlElt :: Config msg -> Miso.View msg
