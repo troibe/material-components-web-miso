@@ -16,6 +16,8 @@ import           Network.WebSockets
 import           Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as B
 import qualified Data.Map as M
+import qualified Data.List as L
+import qualified Data.Function
 import Material.Button as MB
 import Material.Icon as MI
 import Material.IconButton as MIB
@@ -34,6 +36,10 @@ import Material.TextField as MTF
 import Material.Fab as Fab
 import Material.Radio as Radio
 import Material.Switch as Switch
+import Material.List as List
+import Material.List.Item as ListItem
+
+(|>) = (Data.Function.&)
 
 -- | Type synonym for an application model
 type Model = Int
@@ -45,6 +51,7 @@ data Action
   | NoOp
   | SayHelloWorld
   | Closed
+  | SetActivated String
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -66,7 +73,7 @@ main = runApp $ startApp App {..}
     model  = 0                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
-    events = M.insert "MDCDrawer:close" True (M.insert "MDCDialog:close" True defaultEvents)        -- default delegated events and MDCDialog:close
+    events = M.insert "MDCList:action" True (M.insert "MDCDrawer:close" True (M.insert "MDCDialog:close" True defaultEvents))        -- default delegated events and MDCDialog:close
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
     logLevel = Off                -- used during prerendering to see if the VDOM and DOM are in synch (only used with `miso` function)
@@ -77,7 +84,9 @@ updateModel AddOne m = noEff (m + 1)
 updateModel SubtractOne m = noEff (m - 1)
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do
-  liftIO (putStrLn "Hello World") >> pure NoOp
+  liftIO (putStrLn "Hello World!") >> pure NoOp
+updateModel (SetActivated item) m = m <# do
+  liftIO (putStrLn item) >> pure NoOp
 updateModel Closed _ = noEff 0
 
 -- | Constructs a virtual DOM from a model
@@ -144,6 +153,7 @@ viewModel x = div_
       , br_ []
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
+      , activatedItemList x
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
                     , style_ $ M.singleton "width" "350px"
@@ -205,3 +215,34 @@ viewModel x = div_
     , href_ "https://fonts.googleapis.com/icon?family=Material+Icons"
     ]
  ]
+
+
+demoList =
+  [ style_ $ M.singleton "border" "1px solid rgba(0,0,0,.1)"
+  ]
+
+activatedItemList :: Model -> View Action
+activatedItemList model =
+    let
+        listItem ( icon, label ) =
+            ListItem.listItem
+                (ListItem.config
+                    |> ListItem.setSelected
+                        (if "Star" == label then
+                            Just ListItem.activated
+
+                         else
+                            Nothing
+                        )
+                    |> ListItem.setOnClick (SetActivated label)
+                )
+                [ ListItem.graphic [] [ MI.icon [] icon ], Miso.text $ ms label ]
+    in
+    List.list (List.config |> List.setAttributes demoList)
+        (listItem ( "inbox", "Inbox" :: String ))
+        (L.map listItem
+            [ ( "star", "Star" :: String )
+            , ( "send", "Sent" :: String )
+            , ( "drafts", "Drafts" :: String )
+            ]
+        )
