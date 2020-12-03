@@ -79,8 +79,7 @@ linearProgress variant (config_@Config{ additionalAttributes=additionalAttribute
             ]
             ++ additionalAttributes
         )
-        [ bufferingDotsElt
-        , bufferElt
+        [ bufferElt
         , primaryBarElt
         , secondaryBarElt
         ]
@@ -179,14 +178,22 @@ closedProp Config{ closed=closed } =
     Just (boolProp "closed" closed)
 
 
-bufferingDotsElt :: View msg
-bufferingDotsElt =
-    div_ [ class_"mdc-linear-progress__buffering-dots" ] []
-
-
 bufferElt :: View msg
 bufferElt =
-    div_ [ class_"mdc-linear-progress__buffer" ] []
+    div_ [ class_"mdc-linear-progress__buffer" ]
+        [ bufferBarElt
+        , bufferDotsElt
+        ]
+
+
+bufferBarElt :: View msg
+bufferBarElt =
+    div_ [ class_ "mdc-linear-progress__buffer-bar" ] []
+
+
+bufferDotsElt :: View msg
+bufferDotsElt =
+    div_ [ class_ "mdc-linear-progress__buffer-dots" ] []
 
 
 primaryBarElt :: View msg
