@@ -195,10 +195,10 @@ viewModel x = div_
     ]
   , link_
     [ rel_ "stylesheet"
-    , href_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
+    , href_ "https://unpkg.com/material-components-web@6.0.0/dist/material-components-web.min.css"
     ]
   , script_
-    [ src_ "https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"
+    [ src_ "https://unpkg.com/material-components-web@6.0.0/dist/material-components-web.min.js"
     ] ""
   , link_
     [ rel_ "stylesheet"
