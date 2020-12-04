@@ -1,9 +1,11 @@
 # Material Components for Miso
-This is a port of `https://github.com/aforemny/material-components-web-elm` for Miso.
+This is a port of https://github.com/aforemny/material-components-web-elm for Miso.
 The components are currently defined in ``sample-app-jsaddle/Material``
 
 ## Demo
-Images and a demo website are planned.
+![](overview.gif)
+
+A demo website is planned.
 For now please refer to the elm repository. The implemented components work exactly the same.
 
 ## Contribution
