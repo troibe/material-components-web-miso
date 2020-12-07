@@ -41,11 +41,17 @@ import Material.List.Item as ListItem
 import Material.ImageList as ImageList
 import Material.ImageList.Item as ImageListItem
 import Material.Ripple as Ripple
+import Material.Snackbar as Snackbar
 
 (|>) = (Data.Function.&)
 
 -- | Type synonym for an application model
-type Model = Int
+data Model
+  = Model
+    { counter :: Int
+    , queue :: Snackbar.Queue Action
+    }
+  deriving (Eq)
 
 -- | Sum type for application events
 data Action
@@ -55,6 +61,7 @@ data Action
   | SayHelloWorld
   | Closed
   | SetActivated String
+  | SnackbarClosed Snackbar.MessageId
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -74,13 +81,14 @@ extendedEvents =
     |> M.insert "MDCDialog:close" True
     |> M.insert "MDCDrawer:close" True
     |> M.insert "MDCList:action" True
+    |> M.insert "MDCSnackbar:closed" True
 
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = 0                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -90,18 +98,32 @@ main = runApp $ startApp App {..}
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
-updateModel AddOne m = noEff (m + 1)
-updateModel SubtractOne m = noEff (m - 1)
+updateModel AddOne m@Model{counter=counter} = noEff m{counter=counter + 1}
+updateModel SubtractOne m@Model{counter=counter} = noEff m{counter=counter - 1}
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do
   liftIO (putStrLn "Hello World!") >> pure NoOp
-updateModel (SetActivated item) m = m <# do
+updateModel (SetActivated item) m@Model{queue=queue} =
+  let
+    message =
+      Snackbar.message item
+      |> Snackbar.setActionIcon (Just (Snackbar.icon "close"))
+      |> Snackbar.setOnActionIconClick SnackbarClosed
+    newQueue = Snackbar.addMessage message queue
+  in
+  m{queue=newQueue} <# do
   liftIO (putStrLn item) >> pure NoOp
-updateModel Closed _ = noEff 0
+updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
+  let
+    newQueue = Snackbar.close messageId queue
+  in
+  m{queue=newQueue} <# do
+  liftIO (putStrLn $ show messageId) >> pure NoOp
+updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel x = div_ 
+viewModel m@Model{counter=counter} = div_ 
   [ style_ $ M.singleton "display" "-ms-flexbox"
   , style_ $ M.singleton "display" "flex"
   , style_ $ M.singleton "height" "100vh" ]
@@ -135,13 +157,13 @@ viewModel x = div_
       ]
 
       [ MB.text (MB.setOnClick AddOne$MB.config) "+"
-      , MHT.helperText (MHT.setPersistent True$MHT.config) (show x)
+      , MHT.helperText (MHT.setPersistent True$MHT.config) (show counter)
       , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
       , br_ []
       , MI.icon [MT.primary] "thumb_up"
       , br_ []
       , MIB.iconButton (MIB.config) "thumb_down"
-      , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
+      , MD.dialog (MD.setOnClose Closed$MD.setOpen (counter/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
         [ MB.text (MB.setOnClick Closed$MB.config) "Cancel"
         , MB.text (MB.setOnClick Closed$MB.config) "Discard"
         ]
@@ -163,11 +185,13 @@ viewModel x = div_
       , br_ []
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
-      , activatedItemList x
+      , activatedItemList m
       , br_ []
       , myImageList
       , br_ []
       , myRipple
+      , br_ []
+      , mySnackbar m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -289,3 +313,9 @@ myRipple =
         [ Miso.text "🙌"
         , Ripple.unbounded Ripple.config
         ]
+
+mySnackbar :: Model -> View Action
+mySnackbar Model{queue=queue} =
+  Snackbar.snackbar
+    (Snackbar.config (\x -> SnackbarClosed x) )
+    queue
