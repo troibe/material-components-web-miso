@@ -50,6 +50,7 @@ data Model
   = Model
     { counter :: Int
     , queue :: Snackbar.Queue Action
+    , switchState :: Bool
     }
   deriving (Eq)
 
@@ -62,6 +63,7 @@ data Action
   | Closed
   | SetActivated String
   | SnackbarClosed Snackbar.MessageId
+  | PressSwitch
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -88,7 +90,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -119,11 +121,12 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   in
   m{queue=newQueue} <# do
   liftIO (putStrLn $ show messageId) >> pure NoOp
+updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel m@Model{counter=counter} = div_ 
+viewModel m@Model{counter=counter, switchState=switchState} = div_ 
   [ style_ $ M.singleton "display" "-ms-flexbox"
   , style_ $ M.singleton "display" "flex"
   , style_ $ M.singleton "height" "100vh" ]
@@ -181,7 +184,7 @@ viewModel m@Model{counter=counter} = div_
         $ Radio.config
         )
       , br_ []
-      , Switch.switch (Switch.setOnChange SayHelloWorld$Switch.setChecked True$Switch.config)
+      , Switch.switch (Switch.setOnChange PressSwitch$Switch.setChecked switchState$Switch.config)
       , br_ []
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
