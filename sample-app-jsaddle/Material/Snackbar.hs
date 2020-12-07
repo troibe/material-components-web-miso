@@ -30,6 +30,7 @@ import qualified Miso.Svg as Svg
 import qualified Miso.Svg.Attribute
 
 (|>) = (Data.Function.&)
+(<|) = (Data.Function..)
 
 
 {-| Queue of messages
@@ -136,7 +137,7 @@ snackbar (config_@Config { additionalAttributes=additionalAttributes }) (queue@Q
     let
         ( currentMessageId, currentMessage ) =
             Maybe.listToMaybe messages
-                |> Maybe.maybe Nothing (\x -> Just (Bifunctor.second Just x))
+                |> fmap (Bifunctor.second Just)
                 |> Maybe.fromMaybe ( MessageId (-1), Nothing )
     in
     Miso.nodeHtml "mdc-snackbar"
@@ -316,7 +317,7 @@ timeoutMsProp message_ =
         normalizedTimeoutMs =
             message_
                 |> Maybe.maybe Nothing
-                    (\(Message { timeoutMs=timeoutMs }) -> Maybe.maybe Nothing (\x -> Just (clamp 4000 10000 x)) timeoutMs)
+                    (\(Message { timeoutMs=timeoutMs }) -> fmap (clamp 4000 10000 x) timeoutMs)
                 |> Maybe.fromMaybe indefiniteTimeout
 
         indefiniteTimeout =
@@ -366,18 +367,15 @@ actionsElt messageId message_ =
 
 actionButtonElt :: MessageId -> Message msg -> Maybe (Miso.View msg)
 actionButtonElt messageId (message_@Message { actionButton=actionButton }) =
-    Maybe.maybe
-        Nothing
+    fmap
         (\actionButtonLabel ->
-            Just (
-                Miso.button_
-                    (Maybe.mapMaybe id
-                        [ actionButtonCs
-                        , actionButtonClickHandler messageId message_
-                        ]
-                    )
-                    [ Miso.text (Miso.String.toMisoString actionButtonLabel) ]
-            )
+            Miso.button_
+                (Maybe.mapMaybe id
+                    [ actionButtonCs
+                    , actionButtonClickHandler messageId message_
+                    ]
+                )
+                [ Miso.text (Miso.String.toMisoString actionButtonLabel) ]
         )
         actionButton
 
@@ -389,7 +387,7 @@ actionButtonCs =
 
 actionButtonClickHandler :: MessageId -> Message msg -> Maybe (Miso.Attribute msg)
 actionButtonClickHandler messageId (Message { onActionButtonClick=onActionButtonClick }) =
-    Maybe.maybe Nothing (\x-> Just (Miso.onClick $ (|>) messageId x)) onActionButtonClick
+    fmap (Miso.onClick <| (|>) messageId) onActionButtonClick
 
 
 actionIconElt :: MessageId -> Message msg -> Maybe (Miso.View msg)
@@ -427,7 +425,7 @@ actionIconElt messageId (message_@Message { actionIcon=actionIcon }) =
 
 actionIconClickHandler :: MessageId -> Message msg -> Maybe (Miso.Attribute msg)
 actionIconClickHandler messageId (Message { onActionIconClick=onActionIconClick }) =
-    Maybe.maybe Nothing (\x->Just (Miso.onClick $ (|>) messageId x)) onActionIconClick
+    fmap (Miso.onClick <| (|>) messageId) onActionIconClick
 
 
 {-| Icon type
