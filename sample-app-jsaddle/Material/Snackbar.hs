@@ -39,13 +39,14 @@ data Queue msg
         { messages :: [ (MessageId, Message msg) ]
         , nextMessageId :: MessageId
         }
+    deriving (Eq)
 
 
 {-| Message identifier type
 -}
 data MessageId
     = MessageId Int
-    deriving (Eq)
+    deriving (Eq, Show)
 
 
 inc :: MessageId -> MessageId
@@ -166,6 +167,30 @@ data Message msg
         , stacked :: Bool
         , timeoutMs :: Maybe Int
         }
+        
+
+instance Eq (Message msg) where
+    Message
+        { label=aLabel
+        , actionButton=aActionButton
+        , leading=aLeading
+        , stacked=aStacked
+        , timeoutMs=aTimeoutMs
+        }
+        ==
+        Message
+        { label=bLabel
+        , actionButton=bActionButton
+        , leading=bLeading
+        , stacked=bStacked
+        , timeoutMs=bTimeoutMs
+        }
+        =
+            aLabel == bLabel
+            && aActionButton == bActionButton
+            && aLeading == bLeading
+            && aStacked == bStacked
+            && aTimeoutMs == bTimeoutMs
 
 
 {-| Specify a message's action button label
