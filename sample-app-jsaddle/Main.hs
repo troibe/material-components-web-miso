@@ -38,6 +38,8 @@ import Material.Radio as Radio
 import Material.Switch as Switch
 import Material.List as List
 import Material.List.Item as ListItem
+import Material.ImageList as ImageList
+import Material.ImageList.Item as ImageListItem
 
 (|>) = (Data.Function.&)
 
@@ -154,6 +156,9 @@ viewModel x = div_
       , MTF.outlined (MTF.setLabel (Just "Hi")$MTF.config)
       , br_ []
       , activatedItemList x
+      , br_ []
+      , myImageList
+      , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
                     , style_ $ M.singleton "width" "350px"
@@ -246,3 +251,21 @@ activatedItemList model =
             , ( "drafts", "Drafts" :: String )
             ]
         )
+
+myImageList :: View Action
+myImageList =
+    ImageList.imageList
+        (ImageList.config
+            |> ImageList.setWithTextProtection True
+        )
+        [ ImageListItem.imageListItem
+            (ImageListItem.config
+                |> ImageListItem.setLabel (Just "Photo")
+                |> ImageListItem.setAttributes
+                        [ style_ $ M.singleton "width" "200px"
+                        , style_ $ M.singleton "height" "200px"
+                        , style_ $ M.singleton "margin" "2px"
+                        ]
+            )
+            "https://picsum.photos/200/200"
+        ]
