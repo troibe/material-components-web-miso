@@ -118,7 +118,7 @@ listItemElt (config_@Config { masonry=masonry }) (listItem@(ImageListItem.ImageL
     Miso.nodeHtml "mdc-image-list-item"
         (Miso.class_ "mdc-image-list__item" : additionalAttributes)
         (href
-            |> Maybe.maybe Nothing (\href_ -> Just [ Miso.a_ [ Miso.href_ (Miso.String.toMisoString href_) ] inner ])
+            |> fmap (\href_ -> [ Miso.a_ [ Miso.href_ (Miso.String.toMisoString href_) ] inner ])
             |> Maybe.fromMaybe inner
         )
 
@@ -128,7 +128,7 @@ imageAspectContainerElt masonry (listItem@(ImageListItem.ImageListItem (ImageLis
     Miso.div_
         (Maybe.mapMaybe id
             [ Just (Miso.class_ "mdc-image-list__image-aspect-container")
-            , Maybe.maybe Nothing (\_ -> Just (Miso.class_ "mdc-ripple-surface")) href
+            , fmap (\_ -> Miso.class_ "mdc-ripple-surface") href
             ]
         )
         [ imageElt masonry listItem ]
