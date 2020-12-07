@@ -64,9 +64,9 @@ type Tab msg =
 
 {-| Tab constructor
 -}
-tab :: Config msg -> Internal.Content -> Tab msg
-tab config_ content =
-    Internal.Tab (config_ { Internal.content = content })
+tab :: Config msg -> String -> Maybe Icon -> Tab msg
+tab config_ label icon =
+    Internal.Tab (config_ { Internal.content = Internal.Content { Internal.label = label, Internal.icon = icon } })
 
 
 {-| Icon type
