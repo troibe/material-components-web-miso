@@ -68,6 +68,13 @@ runApp :: IO () -> IO ()
 runApp app = app
 #endif
 
+extendedEvents :: M.Map MisoString Bool
+extendedEvents =
+  defaultEvents
+    |> M.insert "MDCDialog:close" True
+    |> M.insert "MDCDrawer:close" True
+    |> M.insert "MDCList:action" True
+
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
@@ -76,7 +83,7 @@ main = runApp $ startApp App {..}
     model  = 0                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
-    events = M.insert "MDCList:action" True (M.insert "MDCDrawer:close" True (M.insert "MDCDialog:close" True defaultEvents))        -- default delegated events and MDCDialog:close
+    events = extendedEvents        -- default delegated events and MDCDialog:close
     subs   = []                   -- empty subscription list
     mountPoint = Nothing          -- mount point for application (Nothing defaults to 'body')
     logLevel = Off                -- used during prerendering to see if the VDOM and DOM are in synch (only used with `miso` function)
