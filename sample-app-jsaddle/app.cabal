@@ -9,9 +9,9 @@ executable app
   main-is:
     Main.hs
   build-depends:
-    base, miso
+    base, miso, containers, bytestring, aeson
   if !impl(ghcjs)
     build-depends:
-       jsaddle, jsaddle-warp, transformers, warp, websockets, bytestring, containers, aeson
+       jsaddle, jsaddle-warp, transformers, warp, websockets
   default-language:
     Haskell2010
