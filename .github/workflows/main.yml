@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-haskell@v1.4
+    - uses: actions/setup-haskell@v1.1.4
     - run: |
         cabal install ormolu
         ormolu --mode check $(git ls-files | grep .hs)
