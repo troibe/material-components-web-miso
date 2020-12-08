@@ -317,7 +317,7 @@ timeoutMsProp message_ =
         normalizedTimeoutMs =
             message_
                 |> Maybe.maybe Nothing
-                    (\(Message { timeoutMs=timeoutMs }) -> fmap (clamp 4000 10000 x) timeoutMs)
+                    (\(Message { timeoutMs=timeoutMs }) -> fmap (clamp 4000 10000) timeoutMs)
                 |> Maybe.fromMaybe indefiniteTimeout
 
         indefiniteTimeout =
