@@ -42,6 +42,8 @@ import Material.ImageList as ImageList
 import Material.ImageList.Item as ImageListItem
 import Material.Ripple as Ripple
 import Material.Snackbar as Snackbar
+import Material.TabBar as TabBar
+import Material.Tab as Tab
 
 (|>) = (Data.Function.&)
 
@@ -51,6 +53,7 @@ data Model
     { counter :: Int
     , queue :: Snackbar.Queue Action
     , switchState :: Bool
+    , tabState :: Int
     }
   deriving (Eq)
 
@@ -64,6 +67,7 @@ data Action
   | SetActivated String
   | SnackbarClosed Snackbar.MessageId
   | PressSwitch
+  | TabClicked Int
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -84,13 +88,14 @@ extendedEvents =
     |> M.insert "MDCDrawer:close" True
     |> M.insert "MDCList:action" True
     |> M.insert "MDCSnackbar:closed" True
+    |> M.insert "MDCTab:interacted" True
 
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0 }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -122,6 +127,7 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   m{queue=newQueue} <# do
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
+updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -195,6 +201,8 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , myRipple
       , br_ []
       , mySnackbar m
+      , br_ []
+      , myTabBar m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -322,3 +330,24 @@ mySnackbar Model{queue=queue} =
   Snackbar.snackbar
     (Snackbar.config (\x -> SnackbarClosed x) )
     queue
+
+myTabBar :: Model -> View Action
+myTabBar Model{tabState=tabState} =
+    TabBar.tabBar TabBar.config
+        [ Tab.tab
+            (Tab.config
+                |> Tab.setActive (tabState==0)
+                |> Tab.setOnClick (TabClicked 0)
+            )
+            "Tab 1" Nothing
+        , Tab.tab
+            (Tab.config
+              |> Tab.setActive (tabState==1)
+              |> Tab.setOnClick (TabClicked 1))
+            "Tab 2" Nothing
+        , Tab.tab
+            (Tab.config
+              |> Tab.setActive (tabState==2)
+              |> Tab.setOnClick (TabClicked 2))
+            "Tab 3" Nothing
+        ]
