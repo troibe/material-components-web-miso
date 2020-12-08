@@ -40,6 +40,7 @@ import Material.List as List
 import Material.List.Item as ListItem
 import Material.ImageList as ImageList
 import Material.ImageList.Item as ImageListItem
+import Material.Ripple as Ripple
 
 (|>) = (Data.Function.&)
 
@@ -130,7 +131,7 @@ viewModel x = div_
       , MHT.helperText (MHT.setPersistent True$MHT.config) (show x)
       , MB.text (MB.setOnClick SubtractOne$MB.config) "-"
       , br_ []
-      , MI.icon [primary] "thumb_up"
+      , MI.icon [MT.primary] "thumb_up"
       , br_ []
       , MIB.iconButton (MIB.config) "thumb_down"
       , MD.dialog (MD.setOnClose Closed$MD.setOpen (x/=0)$MD.config) (MD.dialogContent (Just "Test") [ Miso.text "Discard draft?" ]
@@ -158,6 +159,8 @@ viewModel x = div_
       , activatedItemList x
       , br_ []
       , myImageList
+      , br_ []
+      , myRipple
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -268,4 +271,14 @@ myImageList =
                         ]
             )
             "https://picsum.photos/200/200"
+        ]
+
+myRipple :: View Action
+myRipple =
+    span_ 
+        [ style_ $ M.singleton "padding" "12px"
+        , style_ $ M.singleton "position" "relative"
+        ]
+        [ Miso.text "🙌"
+        , Ripple.unbounded Ripple.config
         ]
