@@ -17,6 +17,7 @@ import Prelude hiding (min, max)
 import qualified Data.Maybe as Maybe
 import qualified Data.Function
 import qualified Data.Map as Map
+import Data.Aeson.Types
 import qualified Miso
 import qualified Miso.Svg
 import qualified Miso.String
@@ -238,9 +239,17 @@ ariaValuenowAttr (Config { value=value }) =
     fmap (Miso.textProp "aria-valuenow" << Miso.String.toMisoString << show) value
 
 
+-- | Retrieves "value" field in `Decoder`
+valueDecoder :: Miso.Decoder Float
+valueDecoder = Miso.Decoder
+    { Miso.decodeAt = Miso.DecodeTarget ["target", "slider_", "foundation_"]
+    , Miso.decoder = withObject "foundation_" $ \o -> o .: "value_"
+    }
+
+
 changeHandler :: Config msg -> Maybe (Miso.Attribute msg)
 changeHandler (Config { onInput=onInput }) =
-    fmap (\x -> Miso.on "MDCSlider:input" Miso.valueDecoder (x << Miso.String.fromMisoString)) (onInput)
+    fmap (\x -> Miso.on "MDCSlider:input" valueDecoder (x)) (onInput)
 
 
 trackContainerElt :: Miso.View msg
