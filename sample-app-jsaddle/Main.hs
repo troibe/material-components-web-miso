@@ -99,7 +99,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=50.0 }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0 }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -132,7 +132,8 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
-updateModel (SliderChanged value) m = noEff m{sliderState=value}
+updateModel (SliderChanged value) m = m{sliderState=value} <# do
+  liftIO (putStrLn (show value)) >> pure NoOp
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -209,7 +210,7 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , br_ []
       , myTabBar m
       , br_ []
-      , mySlider
+      , mySlider m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -359,10 +360,10 @@ myTabBar Model{tabState=tabState} =
             "Tab 3" Nothing
         ]
 
-mySlider :: View Action
-mySlider =
+mySlider :: Model -> View Action
+mySlider Model{sliderState=sliderState} =
   Slider.slider
       (Slider.config
-          |> Slider.setValue (Just 50)
+          |> Slider.setValue (Just sliderState)
           |> Slider.setOnInput SliderChanged
       )
