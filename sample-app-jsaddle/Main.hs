@@ -132,8 +132,7 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
-updateModel (SliderChanged value) m = m{sliderState=value} <# do
-  liftIO (putStrLn (show value)) >> pure NoOp
+updateModel (SliderChanged value) m = noEff m{sliderState=value}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
