@@ -208,7 +208,7 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , br_ []
       , mySnackbar m
       , br_ []
-      , myTabBar m
+      -- , myTabBar m
       , br_ []
       , mySlider m
       , br_ []
