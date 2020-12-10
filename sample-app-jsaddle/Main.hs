@@ -137,7 +137,7 @@ updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel m@Model{counter=counter, switchState=switchState} = div_ 
+viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderState} = div_ 
   [ style_ $ M.singleton "display" "-ms-flexbox"
   , style_ $ M.singleton "display" "flex"
   , style_ $ M.singleton "height" "100vh" ]
@@ -209,6 +209,7 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , br_ []
       -- , myTabBar m
       , br_ []
+      , MHT.helperText (MHT.config |> MHT.setPersistent True) (show sliderState)
       , mySlider m
       , br_ []
       , MC.card ( MC.setAttributes
