@@ -215,12 +215,11 @@ clickHandler listItems =
         nthOnClick index =
             listItems
                 |> Prelude.map getOnClick
-                |> List.filter Maybe.isJust
+                |> Maybe.mapMaybe id
                 |> List.drop index
-                |> List.head -- TODO: Is it the same?
+                |> List.head
 
-        mergedClickHandler index =
-            Maybe.fromJust $ Maybe.fromJust $ nthOnClick index -- TODO: What if there is no onClick?
+        mergedClickHandler index = Maybe.fromJust (nthOnClick index) -- TODO: What if there is no onClick?
     in
       Just (Miso.Html.Event.on "MDCList:action" detailIndexDecoder mergedClickHandler)
 
