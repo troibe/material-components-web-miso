@@ -44,6 +44,7 @@ import Material.Ripple as Ripple
 import Material.Snackbar as Snackbar
 import Material.TabBar as TabBar
 import Material.Tab as Tab
+import Material.Slider as Slider
 import Material.Menu as Menu
 
 (|>) = (Data.Function.&)
@@ -55,6 +56,7 @@ data Model
     , queue :: Snackbar.Queue Action
     , switchState :: Bool
     , tabState :: Int
+    , sliderState :: Float
     , menuState :: Bool
     }
   deriving (Eq)
@@ -70,6 +72,7 @@ data Action
   | SnackbarClosed Snackbar.MessageId
   | PressSwitch
   | TabClicked Int
+  | SliderChanged Float
   | MenuOpened
   | MenuClosed
   deriving (Show, Eq)
@@ -93,6 +96,7 @@ extendedEvents =
     |> M.insert "MDCList:action" True
     |> M.insert "MDCSnackbar:closed" True
     |> M.insert "MDCTab:interacted" True
+    |> M.insert "MDCSlider:input" True
     |> M.insert "MDCMenuSurface:close" True
 
 
@@ -101,7 +105,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, menuState=False }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -134,13 +138,14 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
+updateModel (SliderChanged value) m = noEff m{sliderState=value}
 updateModel (MenuOpened) m = noEff m{menuState=True}
 updateModel (MenuClosed) m = noEff m{menuState=False}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel m@Model{counter=counter, switchState=switchState} = div_ 
+viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderState} = div_ 
   [ style_ $ M.singleton "display" "-ms-flexbox"
   , style_ $ M.singleton "display" "flex"
   , style_ $ M.singleton "height" "100vh" ]
@@ -211,6 +216,9 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , mySnackbar m
       , br_ []
       -- , myTabBar m
+      , br_ []
+      , MHT.helperText (MHT.config |> MHT.setPersistent True) (show sliderState)
+      , mySlider m
       , br_ []
       , myMenu m
       , br_ []
@@ -361,6 +369,14 @@ myTabBar Model{tabState=tabState} =
               |> Tab.setOnClick (TabClicked 2))
             "Tab 3" Nothing
         ]
+
+mySlider :: Model -> View Action
+mySlider Model{sliderState=sliderState} =
+  Slider.slider
+      (Slider.config
+          |> Slider.setValue (Just sliderState)
+          |> Slider.setOnInput SliderChanged
+      )
 
 myMenu :: Model -> View Action
 myMenu Model{menuState=menuState} =
