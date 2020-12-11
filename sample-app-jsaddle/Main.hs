@@ -44,6 +44,7 @@ import Material.Ripple as Ripple
 import Material.Snackbar as Snackbar
 import Material.TabBar as TabBar
 import Material.Tab as Tab
+import Material.Menu as Menu
 
 (|>) = (Data.Function.&)
 
@@ -54,6 +55,7 @@ data Model
     , queue :: Snackbar.Queue Action
     , switchState :: Bool
     , tabState :: Int
+    , menuState :: Bool
     }
   deriving (Eq)
 
@@ -68,6 +70,8 @@ data Action
   | SnackbarClosed Snackbar.MessageId
   | PressSwitch
   | TabClicked Int
+  | MenuOpened
+  | MenuClosed
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -89,13 +93,15 @@ extendedEvents =
     |> M.insert "MDCList:action" True
     |> M.insert "MDCSnackbar:closed" True
     |> M.insert "MDCTab:interacted" True
+    |> M.insert "MDCMenuSurface:close" True
+
 
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0 }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, menuState=False }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -128,6 +134,8 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
+updateModel (MenuOpened) m = noEff m{menuState=True}
+updateModel (MenuClosed) m = noEff m{menuState=False}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -202,7 +210,9 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , br_ []
       , mySnackbar m
       , br_ []
-      , myTabBar m
+      -- , myTabBar m
+      , br_ []
+      , myMenu m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -350,4 +360,26 @@ myTabBar Model{tabState=tabState} =
               |> Tab.setActive (tabState==2)
               |> Tab.setOnClick (TabClicked 2))
             "Tab 3" Nothing
+        ]
+
+myMenu :: Model -> View Action
+myMenu Model{menuState=menuState} =
+    Miso.div_ [ Menu.surfaceAnchor ]
+        [ MB.text
+            (MB.config |> MB.setOnClick MenuOpened)
+            "Open menu"
+        , Menu.menu
+            (Menu.config
+                |> Menu.setOpen menuState
+                |> Menu.setOnClose MenuClosed
+            )
+            [ List.list
+                (List.config |> List.setWrapFocus True)
+                (ListItem.listItem ListItem.config
+                    [ Miso.text "Menu item" ]
+                )
+                [ ListItem.listItem ListItem.config
+                    [ Miso.text "Menu item" ]
+                ]
+            ]
         ]
