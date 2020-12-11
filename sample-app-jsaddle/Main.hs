@@ -375,10 +375,12 @@ myMenu Model{menuState=menuState} =
             )
             [ List.list
                 (List.config |> List.setWrapFocus True)
-                (ListItem.listItem ListItem.config
+                (ListItem.listItem 
+                    (ListItem.config |> (ListItem.setOnClick NoOp))
                     [ Miso.text "Menu item" ]
                 )
-                [ ListItem.listItem ListItem.config
+                [ ListItem.listItem
+                    (ListItem.config |> (ListItem.setOnClick NoOp))
                     [ Miso.text "Menu item" ]
                 ]
             ]
