@@ -87,19 +87,10 @@ setOnChange onChange config_ =
     config_ { onChange = Just onChange }
 
 
-{-| Icon images
--}
-data Images
-    = Images
-        { onIcon :: Icon
-        , offIcon :: Icon
-        }
-
-
 {-| Icon toggle view function
 -}
-iconToggle :: Config msg -> Images -> Miso.View msg
-iconToggle (config_@Config { additionalAttributes=additionalAttributes }) Images{ onIcon=onIcon, offIcon=offIcon } =
+iconToggle :: Config msg -> Icon -> Icon -> Miso.View msg
+iconToggle (config_@Config { additionalAttributes=additionalAttributes }) onIcon offIcon =
     Miso.nodeHtml "mdc-icon-button"
         (Maybe.mapMaybe id
             [ rootCs
