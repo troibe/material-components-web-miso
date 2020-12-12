@@ -46,6 +46,7 @@ import Material.TabBar as TabBar
 import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
+import Material.FormField as FormField
 import Material.IconToggle as IconToggle
 
 (|>) = (Data.Function.&)
@@ -226,6 +227,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , mySlider m
       , br_ []
       , myMenu m
+      , br_ []
+      , myFormField
       , br_ []
       , myIconToggle m
       , br_ []
@@ -408,6 +411,14 @@ myMenu Model{menuState=menuState} =
                 ]
             ]
         ]
+        
+myFormField :: View Action
+myFormField =
+    FormField.formField
+        (FormField.config
+            |> FormField.setLabel (Just "My checkbox")
+        )
+        [ MCB.checkbox MCB.config ]
 
 myIconToggle :: Model -> View Action
 myIconToggle Model{iconToggleState=iconToggleState} =
