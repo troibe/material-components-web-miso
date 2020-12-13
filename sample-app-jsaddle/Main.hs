@@ -47,6 +47,7 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.DataTable as DataTable
 
 (|>) = (Data.Function.&)
 
@@ -224,6 +225,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , myMenu m
       , br_ []
       , myFormField
+      , br_ []
+      , myDataTable
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -412,3 +415,13 @@ myFormField =
             |> FormField.setLabel (Just "My checkbox")
         )
         [ MCB.checkbox MCB.config ]
+
+myDataTable :: View Action
+myDataTable =
+    DataTable.dataTable DataTable.config
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Desert" ] ]
+        ]
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Frozen yogurt" ] ]
+        ]
