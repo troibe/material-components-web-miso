@@ -47,6 +47,8 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.Chip.Action as Chip.Action
+import Material.ChipSet.Action as ChipSet.Action
 
 (|>) = (Data.Function.&)
 
@@ -76,6 +78,7 @@ data Action
   | SliderChanged Float
   | MenuOpened
   | MenuClosed
+  | ActionChipClicked String
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -99,6 +102,7 @@ extendedEvents =
     |> M.insert "MDCTab:interacted" True
     |> M.insert "MDCSlider:input" True
     |> M.insert "MDCMenuSurface:close" True
+    |> M.insert "MDCChip:interaction" True
 
 
 -- | Entry point for a miso application
@@ -142,6 +146,8 @@ updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
 updateModel (SliderChanged value) m = noEff m{sliderState=value}
 updateModel (MenuOpened) m = noEff m{menuState=True}
 updateModel (MenuClosed) m = noEff m{menuState=False}
+updateModel (ActionChipClicked chip) m = m <# do
+  liftIO (putStrLn chip) >> pure NoOp
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -224,6 +230,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , myMenu m
       , br_ []
       , myFormField
+      , br_ []
+      , myActionChipSet
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -412,3 +420,19 @@ myFormField =
             |> FormField.setLabel (Just "My checkbox")
         )
         [ MCB.checkbox MCB.config ]
+
+
+myActionChipSet :: View Action
+myActionChipSet =
+    ChipSet.Action.chipSet []
+        ( Chip.Action.chip
+            ( Chip.Action.config
+                |> Chip.Action.setOnClick (ActionChipClicked "Chip One")
+            )
+            "Chip One")
+        [ Chip.Action.chip
+            ( Chip.Action.config
+                    |> Chip.Action.setOnClick (ActionChipClicked "Chip Two")
+                )
+            "Chip Two"
+        ]
