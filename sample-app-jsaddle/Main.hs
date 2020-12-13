@@ -47,6 +47,7 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.LayoutGrid as LayoutGrid
 
 (|>) = (Data.Function.&)
 
@@ -224,6 +225,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , myMenu m
       , br_ []
       , myFormField
+      , br_ []
+      , myLayoutGrid
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -412,3 +415,13 @@ myFormField =
             |> FormField.setLabel (Just "My checkbox")
         )
         [ MCB.checkbox MCB.config ]
+
+myLayoutGrid :: View Action
+myLayoutGrid =
+    LayoutGrid.layoutGrid []
+        [ LayoutGrid.inner []
+            [ LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test1"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test2"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test3"]
+            ]
+        ]
