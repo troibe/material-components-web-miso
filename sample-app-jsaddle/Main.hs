@@ -49,6 +49,8 @@ import Material.Menu as Menu
 import Material.FormField as FormField
 import Material.Chip.Action as Chip.Action
 import Material.ChipSet.Action as ChipSet.Action
+import Material.Chip.Choice as Chip.Choice
+import Material.ChipSet.Choice as ChipSet.Choice
 
 (|>) = (Data.Function.&)
 
@@ -61,6 +63,7 @@ data Model
     , tabState :: Int
     , sliderState :: Float
     , menuState :: Bool
+    , chipSetChoiceState :: Maybe String
     }
   deriving (Eq)
 
@@ -79,6 +82,7 @@ data Action
   | MenuOpened
   | MenuClosed
   | ActionChipClicked String
+  | ColorChanged String
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -110,7 +114,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, chipSetChoiceState=Just "Red" }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -148,6 +152,7 @@ updateModel (MenuOpened) m = noEff m{menuState=True}
 updateModel (MenuClosed) m = noEff m{menuState=False}
 updateModel (ActionChipClicked chip) m = m <# do
   liftIO (putStrLn chip) >> pure NoOp
+updateModel (ColorChanged chip) m = noEff m{chipSetChoiceState=Just chip}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -232,6 +237,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , myFormField
       , br_ []
       , myActionChipSet
+      , br_ []
+      , myChoiceChipSet m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -421,7 +428,6 @@ myFormField =
         )
         [ MCB.checkbox MCB.config ]
 
-
 myActionChipSet :: View Action
 myActionChipSet =
     ChipSet.Action.chipSet []
@@ -435,4 +441,16 @@ myActionChipSet =
                     |> Chip.Action.setOnClick (ActionChipClicked "Chip Two")
                 )
             "Chip Two"
+        ]
+
+myChoiceChipSet :: Model -> View Action
+myChoiceChipSet Model{chipSetChoiceState=chipSetChoiceState} =
+    ChipSet.Choice.chipSet
+        (ChipSet.Choice.config
+            id
+            |> ChipSet.Choice.setSelected chipSetChoiceState
+            |> ChipSet.Choice.setOnChange ColorChanged
+        )
+        (Chip.Choice.chip Chip.Choice.config "Red")
+        [ Chip.Choice.chip Chip.Choice.config "Blue"
         ]
