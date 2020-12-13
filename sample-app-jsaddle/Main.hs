@@ -53,6 +53,8 @@ import Material.Chip.Choice as Chip.Choice
 import Material.ChipSet.Choice as ChipSet.Choice
 import Material.Chip.Filter as Chip.Filter
 import Material.ChipSet.Filter as ChipSet.Filter
+import Material.Chip.Input as Chip.Input
+import Material.ChipSet.Input as ChipSet.Input
 
 (|>) = (Data.Function.&)
 
@@ -67,6 +69,7 @@ data Model
     , menuState :: Bool
     , chipSetChoiceState :: Maybe String
     , chipSetFilterState :: (Bool, Bool)
+    , chipSetInputState :: [String]
     }
   deriving (Eq)
 
@@ -87,6 +90,7 @@ data Action
   | ActionChipClicked String
   | ColorChanged String
   | ChipClicked String
+  | InputChipDeleted String
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -118,7 +122,16 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, chipSetChoiceState=Just "Red", chipSetFilterState=(False, False) }                    -- initial model
+    model  = Model {
+      counter=0
+      , queue=Snackbar.initialQueue
+      , switchState=False
+      , tabState=0
+      , sliderState=10.0
+      , menuState=False
+      , chipSetChoiceState=Just "Red"
+      , chipSetFilterState=(False, False)
+      , chipSetInputState=["Chip One", "Chip Two"] }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -162,6 +175,7 @@ updateModel (ChipClicked chip) m@Model{chipSetFilterState=(filterTops, filterSho
     "Tops" -> noEff m{chipSetFilterState=(not filterTops, filterShoes)}
     "Shoes" -> noEff m{chipSetFilterState=(filterTops, not filterShoes)}
     _ -> noEff m{chipSetFilterState=(filterTops, filterShoes)}
+updateModel (InputChipDeleted inputChip) m@Model{chipSetInputState=inputChips} = noEff m{chipSetInputState=L.filter ((/=) inputChip) inputChips}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -250,6 +264,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , myChoiceChipSet m
       , br_ []
       , myFilterChipSet m
+      , br_ []
+      , myInputChipSet
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -483,4 +499,23 @@ myFilterChipSet Model{chipSetFilterState=(filterTops, filterShoes)} =
                     (ChipClicked "Shoes")
             )
             "Shoes"
+        ]
+
+myInputChipSet :: View Action
+myInputChipSet =
+    ChipSet.Input.chipSet "myInputChipSet" []
+        ( "Chip One"
+        , Chip.Input.chip
+            (Chip.Input.config 
+                |> Chip.Input.setOnDelete (InputChipDeleted "Chip One")
+            )
+            "Chip One"
+        )
+        [ ("Chip Two"
+          , Chip.Input.chip
+              (Chip.Input.config
+                  |> Chip.Input.setOnDelete (InputChipDeleted "Chip Two")
+              )
+              "Chip Two"
+          )
         ]
