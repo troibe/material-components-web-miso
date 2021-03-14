@@ -47,6 +47,7 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.LayoutGrid as LayoutGrid
 import Material.IconToggle as IconToggle
 import Material.Select as Select
 import Material.Select.Item as SelectItem
@@ -239,6 +240,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , br_ []
       , myFormField
       , br_ []
+      , myLayoutGrid
+      , br_ []
       , myIconToggle m
       , br_ []
       , MC.card ( MC.setAttributes
@@ -429,6 +432,16 @@ myFormField =
         )
         [ MCB.checkbox MCB.config ]
 
+myLayoutGrid :: View Action
+myLayoutGrid =
+    LayoutGrid.layoutGrid []
+        [ LayoutGrid.inner []
+            [ LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test1"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test2"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test3"]
+            ]
+        ]
+
 myIconToggle :: Model -> View Action
 myIconToggle Model{iconToggleState=iconToggleState} =
     IconToggle.iconToggle
@@ -438,6 +451,7 @@ myIconToggle Model{iconToggleState=iconToggleState} =
         )
         (IconToggle.icon "favorite_outlined")
         (IconToggle.icon "favorite")
+
 mySelectItem :: String -> SelectItem String Action
 mySelectItem text = SelectItem.selectItem
     ( SelectItem.config text )
