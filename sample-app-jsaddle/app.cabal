@@ -13,5 +13,7 @@ executable app
   if !impl(ghcjs)
     build-depends:
        jsaddle, jsaddle-warp, transformers, warp, websockets
+  js-sources:
+    material-components-web-elm.min.js
   default-language:
     Haskell2010
