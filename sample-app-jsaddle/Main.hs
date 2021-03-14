@@ -48,6 +48,8 @@ import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
 import Material.IconToggle as IconToggle
+import Material.Select as Select
+import Material.Select.Item as SelectItem
 
 (|>) = (Data.Function.&)
 
@@ -61,6 +63,7 @@ data Model
     , sliderState :: Float
     , menuState :: Bool
     , iconToggleState :: Bool
+    , selectedItem :: Maybe String
     }
   deriving (Eq)
 
@@ -76,6 +79,7 @@ data Action
   | PressSwitch
   | TabClicked Int
   | SliderChanged Float
+  | ItemSelected String
   | MenuOpened
   | MenuClosed
   | IconToggleClicked
@@ -110,7 +114,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, iconToggleState=True }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, iconToggleState=True, selectedItem=Just "Third" }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -125,6 +129,9 @@ updateModel SubtractOne m@Model{counter=counter} = noEff m{counter=counter - 1}
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do
   liftIO (putStrLn "Hello World!") >> pure NoOp
+updateModel (ItemSelected item) m =
+  m{selectedItem=(Just item)} <# do
+    liftIO (putStrLn item) >> pure NoOp
 updateModel (SetActivated item) m@Model{queue=queue} =
   let
     message =
@@ -227,6 +234,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , mySlider m
       , br_ []
       , myMenu m
+      , br_ []
+      , mySelect m
       , br_ []
       , myFormField
       , br_ []
@@ -429,3 +438,19 @@ myIconToggle Model{iconToggleState=iconToggleState} =
         )
         (IconToggle.icon "favorite_outlined")
         (IconToggle.icon "favorite")
+mySelectItem :: String -> SelectItem String Action
+mySelectItem text = SelectItem.selectItem
+    ( SelectItem.config text )
+    [ Miso.text $ Miso.String.toMisoString text ]
+
+mySelect :: Model -> View Action
+mySelect Model{selectedItem=selectedItem} =
+    Select.outlined
+        (Select.setLabel (Just "Choose wisely") $ Select.setOnChange ItemSelected $ Select.setSelected selectedItem Select.config)
+        ( mySelectItem "First" )
+        [ mySelectItem "Second"
+        , mySelectItem "Third"
+        , mySelectItem "Fourth"
+        ]
+
+
