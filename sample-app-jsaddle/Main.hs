@@ -47,6 +47,14 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.Chip.Action as Chip.Action
+import Material.ChipSet.Action as ChipSet.Action
+import Material.Chip.Choice as Chip.Choice
+import Material.ChipSet.Choice as ChipSet.Choice
+import Material.Chip.Filter as Chip.Filter
+import Material.ChipSet.Filter as ChipSet.Filter
+import Material.Chip.Input as Chip.Input
+import Material.ChipSet.Input as ChipSet.Input
 import Material.DataTable as DataTable
 import Material.LayoutGrid as LayoutGrid
 import Material.IconToggle as IconToggle
@@ -64,6 +72,9 @@ data Model
     , tabState :: Int
     , sliderState :: Float
     , menuState :: Bool
+    , chipSetChoiceState :: Maybe String
+    , chipSetFilterState :: (Bool, Bool)
+    , chipSetInputState :: [String]
     , iconToggleState :: Bool
     , selectedItem :: Maybe String
     }
@@ -84,6 +95,10 @@ data Action
   | ItemSelected String
   | MenuOpened
   | MenuClosed
+  | ActionChipClicked String
+  | ColorChanged String
+  | ChipClicked String
+  | InputChipDeleted String
   | IconToggleClicked
   deriving (Show, Eq)
 
@@ -108,6 +123,7 @@ extendedEvents =
     |> M.insert "MDCTab:interacted" True
     |> M.insert "MDCSlider:input" True
     |> M.insert "MDCMenuSurface:close" True
+    |> M.insert "MDCChip:interaction" True
     |> M.insert "MDCIconButtonToggle:change" True
 
 
@@ -116,7 +132,19 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, iconToggleState=True, selectedItem=Just "Third" }                    -- initial model
+    model  = Model
+      { counter=0
+      , queue=Snackbar.initialQueue
+      , switchState=False
+      , tabState=0
+      , sliderState=10.0
+      , menuState=False
+      , chipSetChoiceState=Just "Red"
+      , chipSetFilterState=(False, False)
+      , chipSetInputState=["Chip One", "Chip Two"]
+      , iconToggleState=True
+      , selectedItem=Just "Third"
+      }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -155,6 +183,15 @@ updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
 updateModel (SliderChanged value) m = noEff m{sliderState=value}
 updateModel (MenuOpened) m = noEff m{menuState=True}
 updateModel (MenuClosed) m = noEff m{menuState=False}
+updateModel (ActionChipClicked chip) m = m <# do
+  liftIO (putStrLn chip) >> pure NoOp
+updateModel (ColorChanged chip) m = noEff m{chipSetChoiceState=Just chip}
+updateModel (ChipClicked chip) m@Model{chipSetFilterState=(filterTops, filterShoes)} = 
+  case chip of
+    "Tops" -> noEff m{chipSetFilterState=(not filterTops, filterShoes)}
+    "Shoes" -> noEff m{chipSetFilterState=(filterTops, not filterShoes)}
+    _ -> noEff m{chipSetFilterState=(filterTops, filterShoes)}
+updateModel (InputChipDeleted inputChip) m@Model{chipSetInputState=inputChips} = noEff m{chipSetInputState=L.filter ((/=) inputChip) inputChips}
 updateModel (IconToggleClicked) m@Model{iconToggleState=iconToggleState} = noEff m{iconToggleState=not iconToggleState}
 updateModel Closed m = noEff m{counter=0}
 
@@ -240,6 +277,14 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , mySelect m
       , br_ []
       , myFormField
+      , br_ []
+      , myActionChipSet
+      , br_ []
+      , myChoiceChipSet m
+      , br_ []
+      , myFilterChipSet m
+      , br_ []
+      , myInputChipSet
       , br_ []
       , myDataTable
       , br_ []
@@ -434,6 +479,71 @@ myFormField =
             |> FormField.setLabel (Just "My checkbox")
         )
         [ MCB.checkbox MCB.config ]
+
+myActionChipSet :: View Action
+myActionChipSet =
+    ChipSet.Action.chipSet []
+        ( Chip.Action.chip
+            ( Chip.Action.config
+                |> Chip.Action.setOnClick (ActionChipClicked "Chip One")
+            )
+            "Chip One")
+        [ Chip.Action.chip
+            ( Chip.Action.config
+                    |> Chip.Action.setOnClick (ActionChipClicked "Chip Two")
+                )
+            "Chip Two"
+        ]
+
+myChoiceChipSet :: Model -> View Action
+myChoiceChipSet Model{chipSetChoiceState=chipSetChoiceState} =
+    ChipSet.Choice.chipSet
+        (ChipSet.Choice.config
+            id
+            |> ChipSet.Choice.setSelected chipSetChoiceState
+            |> ChipSet.Choice.setOnChange ColorChanged
+        )
+        (Chip.Choice.chip Chip.Choice.config "Red")
+        [ Chip.Choice.chip Chip.Choice.config "Blue"
+        ]
+
+myFilterChipSet :: Model -> View Action
+myFilterChipSet Model{chipSetFilterState=(filterTops, filterShoes)} =
+    ChipSet.Filter.chipSet []
+        (Chip.Filter.chip
+            (Chip.Filter.config
+                |> Chip.Filter.setSelected filterTops
+                |> Chip.Filter.setOnChange
+                    (ChipClicked "Tops")
+            )
+            "Tops" )
+        [ Chip.Filter.chip
+            (Chip.Filter.config
+                |> Chip.Filter.setSelected filterShoes
+                |> Chip.Filter.setOnChange
+                    (ChipClicked "Shoes")
+            )
+            "Shoes"
+        ]
+
+myInputChipSet :: View Action
+myInputChipSet =
+    ChipSet.Input.chipSet "myInputChipSet" []
+        ( "Chip One"
+        , Chip.Input.chip
+            (Chip.Input.config 
+                |> Chip.Input.setOnDelete (InputChipDeleted "Chip One")
+            )
+            "Chip One"
+        )
+        [ ("Chip Two"
+          , Chip.Input.chip
+              (Chip.Input.config
+                  |> Chip.Input.setOnDelete (InputChipDeleted "Chip Two")
+              )
+              "Chip Two"
+          )
+        ]
 
 myDataTable :: View Action
 myDataTable =
