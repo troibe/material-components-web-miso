@@ -1,11 +1,10 @@
-module Material.IconButton.Internal(Config(..)) where
+module Material.IconButton.Internal (Config (..)) where
 
 import Miso
 
-data Config msg
-    = Config
-        { disabled :: Bool
-        , label :: Maybe String
-        , additionalAttributes :: [Attribute msg]
-        , onClick :: Maybe msg
-        }
+data Config msg = Config
+  { disabled :: Bool,
+    label :: Maybe String,
+    additionalAttributes :: [Attribute msg],
+    onClick :: Maybe msg
+  }
