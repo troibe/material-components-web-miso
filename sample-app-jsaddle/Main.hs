@@ -47,6 +47,7 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.IconToggle as IconToggle
 import Material.Select as Select
 import Material.Select.Item as SelectItem
 
@@ -61,6 +62,7 @@ data Model
     , tabState :: Int
     , sliderState :: Float
     , menuState :: Bool
+    , iconToggleState :: Bool
     , selectedItem :: Maybe String
     }
   deriving (Eq)
@@ -80,6 +82,7 @@ data Action
   | ItemSelected String
   | MenuOpened
   | MenuClosed
+  | IconToggleClicked
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -103,6 +106,7 @@ extendedEvents =
     |> M.insert "MDCTab:interacted" True
     |> M.insert "MDCSlider:input" True
     |> M.insert "MDCMenuSurface:close" True
+    |> M.insert "MDCIconButtonToggle:change" True
 
 
 -- | Entry point for a miso application
@@ -110,7 +114,7 @@ main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, selectedItem=Just "Third" }                    -- initial model
+    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0, sliderState=10.0, menuState=False, iconToggleState=True, selectedItem=Just "Third" }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -149,6 +153,7 @@ updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
 updateModel (SliderChanged value) m = noEff m{sliderState=value}
 updateModel (MenuOpened) m = noEff m{menuState=True}
 updateModel (MenuClosed) m = noEff m{menuState=False}
+updateModel (IconToggleClicked) m@Model{iconToggleState=iconToggleState} = noEff m{iconToggleState=not iconToggleState}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
@@ -233,6 +238,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , mySelect m
       , br_ []
       , myFormField
+      , br_ []
+      , myIconToggle m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -413,7 +420,7 @@ myMenu Model{menuState=menuState} =
                 ]
             ]
         ]
-
+        
 myFormField :: View Action
 myFormField =
     FormField.formField
@@ -422,6 +429,15 @@ myFormField =
         )
         [ MCB.checkbox MCB.config ]
 
+myIconToggle :: Model -> View Action
+myIconToggle Model{iconToggleState=iconToggleState} =
+    IconToggle.iconToggle
+        (IconToggle.config
+            |> IconToggle.setOn iconToggleState
+            |> IconToggle.setOnChange IconToggleClicked
+        )
+        (IconToggle.icon "favorite_outlined")
+        (IconToggle.icon "favorite")
 mySelectItem :: String -> SelectItem String Action
 mySelectItem text = SelectItem.selectItem
     ( SelectItem.config text )
