@@ -47,6 +47,7 @@ import Material.Tab as Tab
 import Material.Slider as Slider
 import Material.Menu as Menu
 import Material.FormField as FormField
+import Material.DataTable as DataTable
 import Material.LayoutGrid as LayoutGrid
 import Material.IconToggle as IconToggle
 import Material.Select as Select
@@ -240,6 +241,8 @@ viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderSt
       , br_ []
       , myFormField
       , br_ []
+      , myDataTable
+      , br_ []
       , myLayoutGrid
       , br_ []
       , myIconToggle m
@@ -431,6 +434,16 @@ myFormField =
             |> FormField.setLabel (Just "My checkbox")
         )
         [ MCB.checkbox MCB.config ]
+
+myDataTable :: View Action
+myDataTable =
+    DataTable.dataTable DataTable.config
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Desert" ] ]
+        ]
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Frozen yogurt" ] ]
+        ]
 
 myLayoutGrid :: View Action
 myLayoutGrid =
