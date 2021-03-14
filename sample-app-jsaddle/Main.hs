@@ -44,6 +44,22 @@ import Material.Ripple as Ripple
 import Material.Snackbar as Snackbar
 import Material.TabBar as TabBar
 import Material.Tab as Tab
+import Material.Slider as Slider
+import Material.Menu as Menu
+import Material.FormField as FormField
+import Material.Chip.Action as Chip.Action
+import Material.ChipSet.Action as ChipSet.Action
+import Material.Chip.Choice as Chip.Choice
+import Material.ChipSet.Choice as ChipSet.Choice
+import Material.Chip.Filter as Chip.Filter
+import Material.ChipSet.Filter as ChipSet.Filter
+import Material.Chip.Input as Chip.Input
+import Material.ChipSet.Input as ChipSet.Input
+import Material.DataTable as DataTable
+import Material.LayoutGrid as LayoutGrid
+import Material.IconToggle as IconToggle
+import Material.Select as Select
+import Material.Select.Item as SelectItem
 
 (|>) = (Data.Function.&)
 
@@ -54,6 +70,13 @@ data Model
     , queue :: Snackbar.Queue Action
     , switchState :: Bool
     , tabState :: Int
+    , sliderState :: Float
+    , menuState :: Bool
+    , chipSetChoiceState :: Maybe String
+    , chipSetFilterState :: (Bool, Bool)
+    , chipSetInputState :: [String]
+    , iconToggleState :: Bool
+    , selectedItem :: Maybe String
     }
   deriving (Eq)
 
@@ -68,6 +91,15 @@ data Action
   | SnackbarClosed Snackbar.MessageId
   | PressSwitch
   | TabClicked Int
+  | SliderChanged Float
+  | ItemSelected String
+  | MenuOpened
+  | MenuClosed
+  | ActionChipClicked String
+  | ColorChanged String
+  | ChipClicked String
+  | InputChipDeleted String
+  | IconToggleClicked
   deriving (Show, Eq)
 
 #ifndef __GHCJS__
@@ -89,13 +121,30 @@ extendedEvents =
     |> M.insert "MDCList:action" True
     |> M.insert "MDCSnackbar:closed" True
     |> M.insert "MDCTab:interacted" True
+    |> M.insert "MDCSlider:input" True
+    |> M.insert "MDCMenuSurface:close" True
+    |> M.insert "MDCChip:interaction" True
+    |> M.insert "MDCIconButtonToggle:change" True
+
 
 -- | Entry point for a miso application
 main :: IO ()
 main = runApp $ startApp App {..}
   where
     initialAction = SayHelloWorld -- initial action to be executed on application load
-    model  = Model { counter=0, queue=Snackbar.initialQueue, switchState=False, tabState=0 }                    -- initial model
+    model  = Model
+      { counter=0
+      , queue=Snackbar.initialQueue
+      , switchState=False
+      , tabState=0
+      , sliderState=10.0
+      , menuState=False
+      , chipSetChoiceState=Just "Red"
+      , chipSetFilterState=(False, False)
+      , chipSetInputState=["Chip One", "Chip Two"]
+      , iconToggleState=True
+      , selectedItem=Just "Third"
+      }                    -- initial model
     update = updateModel          -- update function
     view   = viewModel            -- view function
     events = extendedEvents        -- default delegated events and MDCDialog:close
@@ -110,6 +159,9 @@ updateModel SubtractOne m@Model{counter=counter} = noEff m{counter=counter - 1}
 updateModel NoOp m = noEff m
 updateModel SayHelloWorld m = m <# do
   liftIO (putStrLn "Hello World!") >> pure NoOp
+updateModel (ItemSelected item) m =
+  m{selectedItem=(Just item)} <# do
+    liftIO (putStrLn item) >> pure NoOp
 updateModel (SetActivated item) m@Model{queue=queue} =
   let
     message =
@@ -128,11 +180,24 @@ updateModel (SnackbarClosed messageId) m@Model{queue=queue} =
   liftIO (putStrLn $ show messageId) >> pure NoOp
 updateModel PressSwitch m@Model{switchState=switchState} = noEff m{switchState=not switchState}
 updateModel (TabClicked tabId) m = noEff m{tabState=tabId}
+updateModel (SliderChanged value) m = noEff m{sliderState=value}
+updateModel (MenuOpened) m = noEff m{menuState=True}
+updateModel (MenuClosed) m = noEff m{menuState=False}
+updateModel (ActionChipClicked chip) m = m <# do
+  liftIO (putStrLn chip) >> pure NoOp
+updateModel (ColorChanged chip) m = noEff m{chipSetChoiceState=Just chip}
+updateModel (ChipClicked chip) m@Model{chipSetFilterState=(filterTops, filterShoes)} = 
+  case chip of
+    "Tops" -> noEff m{chipSetFilterState=(not filterTops, filterShoes)}
+    "Shoes" -> noEff m{chipSetFilterState=(filterTops, not filterShoes)}
+    _ -> noEff m{chipSetFilterState=(filterTops, filterShoes)}
+updateModel (InputChipDeleted inputChip) m@Model{chipSetInputState=inputChips} = noEff m{chipSetInputState=L.filter ((/=) inputChip) inputChips}
+updateModel (IconToggleClicked) m@Model{iconToggleState=iconToggleState} = noEff m{iconToggleState=not iconToggleState}
 updateModel Closed m = noEff m{counter=0}
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
-viewModel m@Model{counter=counter, switchState=switchState} = div_ 
+viewModel m@Model{counter=counter, switchState=switchState, sliderState=sliderState} = div_ 
   [ style_ $ M.singleton "display" "-ms-flexbox"
   , style_ $ M.singleton "display" "flex"
   , style_ $ M.singleton "height" "100vh" ]
@@ -202,7 +267,30 @@ viewModel m@Model{counter=counter, switchState=switchState} = div_
       , br_ []
       , mySnackbar m
       , br_ []
-      , myTabBar m
+      -- , myTabBar m
+      , br_ []
+      , MHT.helperText (MHT.config |> MHT.setPersistent True) (show sliderState)
+      , mySlider m
+      , br_ []
+      , myMenu m
+      , br_ []
+      , mySelect m
+      , br_ []
+      , myFormField
+      , br_ []
+      , myActionChipSet
+      , br_ []
+      , myChoiceChipSet m
+      , br_ []
+      , myFilterChipSet m
+      , br_ []
+      , myInputChipSet
+      , br_ []
+      , myDataTable
+      , br_ []
+      , myLayoutGrid
+      , br_ []
+      , myIconToggle m
       , br_ []
       , MC.card ( MC.setAttributes
                     [ style_ $ M.singleton "margin" "48px 0"
@@ -351,3 +439,155 @@ myTabBar Model{tabState=tabState} =
               |> Tab.setOnClick (TabClicked 2))
             "Tab 3" Nothing
         ]
+
+mySlider :: Model -> View Action
+mySlider Model{sliderState=sliderState} =
+  Slider.slider
+      (Slider.config
+          |> Slider.setValue (Just sliderState)
+          |> Slider.setOnInput SliderChanged
+      )
+
+myMenu :: Model -> View Action
+myMenu Model{menuState=menuState} =
+    Miso.div_ [ Menu.surfaceAnchor ]
+        [ MB.text
+            (MB.config |> MB.setOnClick MenuOpened)
+            "Open menu"
+        , Menu.menu
+            (Menu.config
+                |> Menu.setOpen menuState
+                |> Menu.setOnClose MenuClosed
+            )
+            [ List.list
+                (List.config |> List.setWrapFocus True)
+                (ListItem.listItem 
+                    (ListItem.config |> (ListItem.setOnClick NoOp))
+                    [ Miso.text "Menu item" ]
+                )
+                [ ListItem.listItem
+                    (ListItem.config |> (ListItem.setOnClick NoOp))
+                    [ Miso.text "Menu item" ]
+                ]
+            ]
+        ]
+        
+myFormField :: View Action
+myFormField =
+    FormField.formField
+        (FormField.config
+            |> FormField.setLabel (Just "My checkbox")
+        )
+        [ MCB.checkbox MCB.config ]
+
+myActionChipSet :: View Action
+myActionChipSet =
+    ChipSet.Action.chipSet []
+        ( Chip.Action.chip
+            ( Chip.Action.config
+                |> Chip.Action.setOnClick (ActionChipClicked "Chip One")
+            )
+            "Chip One")
+        [ Chip.Action.chip
+            ( Chip.Action.config
+                    |> Chip.Action.setOnClick (ActionChipClicked "Chip Two")
+                )
+            "Chip Two"
+        ]
+
+myChoiceChipSet :: Model -> View Action
+myChoiceChipSet Model{chipSetChoiceState=chipSetChoiceState} =
+    ChipSet.Choice.chipSet
+        (ChipSet.Choice.config
+            id
+            |> ChipSet.Choice.setSelected chipSetChoiceState
+            |> ChipSet.Choice.setOnChange ColorChanged
+        )
+        (Chip.Choice.chip Chip.Choice.config "Red")
+        [ Chip.Choice.chip Chip.Choice.config "Blue"
+        ]
+
+myFilterChipSet :: Model -> View Action
+myFilterChipSet Model{chipSetFilterState=(filterTops, filterShoes)} =
+    ChipSet.Filter.chipSet []
+        (Chip.Filter.chip
+            (Chip.Filter.config
+                |> Chip.Filter.setSelected filterTops
+                |> Chip.Filter.setOnChange
+                    (ChipClicked "Tops")
+            )
+            "Tops" )
+        [ Chip.Filter.chip
+            (Chip.Filter.config
+                |> Chip.Filter.setSelected filterShoes
+                |> Chip.Filter.setOnChange
+                    (ChipClicked "Shoes")
+            )
+            "Shoes"
+        ]
+
+myInputChipSet :: View Action
+myInputChipSet =
+    ChipSet.Input.chipSet "myInputChipSet" []
+        ( "Chip One"
+        , Chip.Input.chip
+            (Chip.Input.config 
+                |> Chip.Input.setOnDelete (InputChipDeleted "Chip One")
+            )
+            "Chip One"
+        )
+        [ ("Chip Two"
+          , Chip.Input.chip
+              (Chip.Input.config
+                  |> Chip.Input.setOnDelete (InputChipDeleted "Chip Two")
+              )
+              "Chip Two"
+          )
+        ]
+
+myDataTable :: View Action
+myDataTable =
+    DataTable.dataTable DataTable.config
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Desert" ] ]
+        ]
+        [ DataTable.row []
+            [ DataTable.cell [] [ Miso.text "Frozen yogurt" ] ]
+        ]
+
+myLayoutGrid :: View Action
+myLayoutGrid =
+    LayoutGrid.layoutGrid []
+        [ LayoutGrid.inner []
+            [ LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test1"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test2"]
+            , LayoutGrid.cell [] [MHT.helperText (MHT.setPersistent True$MHT.config) "Test3"]
+            ]
+        ]
+
+myIconToggle :: Model -> View Action
+myIconToggle Model{iconToggleState=iconToggleState} =
+    IconToggle.iconToggle
+        (IconToggle.config
+            |> IconToggle.setOn iconToggleState
+            |> IconToggle.setOnChange IconToggleClicked
+        )
+        (IconToggle.icon "favorite_outlined")
+        (IconToggle.icon "favorite")
+
+mySelectItem :: String -> SelectItem String Action
+mySelectItem text = SelectItem.selectItem
+    ( SelectItem.config text )
+    [ Miso.text $ Miso.String.toMisoString text ]
+
+mySelect :: Model -> View Action
+mySelect Model{selectedItem=selectedItem} =
+    Select.outlined
+        (Select.setLabel (Just "Choose wisely") $ Select.setOnChange ItemSelected $ Select.setSelected selectedItem Select.config)
+        ( mySelectItem "First" )
+        [ mySelectItem "Second"
+        , mySelectItem "Third"
+        , mySelectItem "Fourth"
+        ]
+
+
