@@ -1,12 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Material.Icon(icon) where
+
+module Material.Icon (icon) where
 
 import Miso.Html
 import Miso.String
 
-
-{-| Icon view function
--}
+-- | Icon view function
 icon :: [Attribute msg] -> String -> View msg
 icon additionalAttributes iconName =
-    i_ (class_ "material-icons":additionalAttributes) [ text (toMisoString iconName) ]
+  i_ (class_ "material-icons" : additionalAttributes) [text (toMisoString iconName)]
