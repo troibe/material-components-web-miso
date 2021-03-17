@@ -205,8 +205,8 @@ ariaValuenowAttr (Config {value = value}) =
 valueDecoder :: Miso.Decoder Float
 valueDecoder =
   Miso.Decoder
-    { Miso.decodeAt = Miso.DecodeTarget ["target", "slider_", "foundation_"],
-      Miso.decoder = withObject "foundation_" $ \o -> o .: "value_"
+    { Miso.decodeAt = Miso.DecodeTarget ["target"],
+      Miso.decoder = withObject "target" $ \o -> o .: "value"
     }
 
 changeHandler :: Config msg -> Maybe (Miso.Attribute msg)
