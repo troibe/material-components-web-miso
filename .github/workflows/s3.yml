@@ -20,7 +20,7 @@ jobs:
         id: build
       - run: |
           cd sample-app-jsaddle
-          nix-build
+          nix-build -A release
           mkdir deploy
           cp result/bin/app.jsexe/lib.js deploy/lib.js
           cp result/bin/app.jsexe/out.js deploy/out.js
