@@ -265,7 +265,7 @@ viewModel m@Model {counter = counter, switchState = switchState, sliderState = s
               br_ [],
               Switch.switch (Switch.setOnChange PressSwitch $ Switch.setChecked switchState $ Switch.config),
               br_ [],
-              MTF.outlined (MTF.setLabel (Just "Hi") $ MTF.config),
+              MTF.filled (MTF.setLabel (Just "Hi") $ MTF.config),
               br_ [],
               activatedItemList m,
               br_ [],

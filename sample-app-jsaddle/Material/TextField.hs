@@ -204,6 +204,7 @@ textField outlined_ (config_@Config {additionalAttributes = additionalAttributes
         id
         [ rootCs,
           noLabelCs config_,
+          filledCs outlined_,
           outlinedCs outlined_,
           fullwidthCs config_,
           disabledCs config_,
@@ -258,6 +259,12 @@ icon additionalAttributes iconName =
 rootCs :: Maybe (Miso.Attribute msg)
 rootCs =
   Just (Miso.class_ "mdc-text-field")
+
+filledCs :: Bool -> Maybe (Miso.Attribute msg)
+filledCs outlined_ =
+  if not outlined_
+    then Just (Miso.class_ "mdc-text-field--filled")
+    else Nothing
 
 outlinedCs :: Bool -> Maybe (Miso.Attribute msg)
 outlinedCs outlined_ =
