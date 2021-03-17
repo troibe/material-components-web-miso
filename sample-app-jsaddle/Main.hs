@@ -275,7 +275,7 @@ viewModel m@Model {counter = counter, switchState = switchState, sliderState = s
               br_ [],
               mySnackbar m,
               br_ [],
-              -- , myTabBar m
+              myTabBar m,
               br_ [],
               MHT.helperText (MHT.config |> MHT.setPersistent True) (show sliderState),
               mySlider m,
