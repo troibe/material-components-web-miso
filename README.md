@@ -6,7 +6,7 @@ The components are currently defined in ``sample-app-jsaddle/Material``.
 The code of the demo website is located ``sample-app-jsaddle/Main.hs``.
 
 ## Demo
-Visit our demo website [matiso.dev](https://matiso.dev)!
+Visit our demo website [matiso.dev](https://www.matiso.dev)!
 
 ![](overview.gif)
 
