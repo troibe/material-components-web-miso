@@ -27,7 +27,7 @@ import Material.List.Item.Internal (Config (..), ListItem (..), Selection (..))
 import qualified Miso
 import qualified Miso.Html.Property
 
---type Config = Material.List.Item.Internal.Config
+-- type Config = Material.List.Item.Internal.Config
 
 -- | Default configuration of a list item
 config :: Config msg
@@ -54,7 +54,7 @@ setDisabled disabled config_ =
 --
 -- A list item may be either in selected or in activated selection state.
 
---type Selection =
+-- type Selection =
 --    Material.List.Item.Internal.Selection
 
 -- | Selected selection state
@@ -108,7 +108,7 @@ setOnClick onClick config_ =
 --
 -- List items can only be rendered within a [list container](Material-List).
 
---type ListItem msg =
+-- type ListItem msg =
 --    Material.List.Item.Internal.ListItem msg
 
 -- | List item constructor

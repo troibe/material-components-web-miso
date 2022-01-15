@@ -184,14 +184,14 @@ tabIndexProp (Config {disabled = disabled}) =
 hrefAttr :: Config msg -> Maybe (Attribute msg)
 hrefAttr (Config {href = href}) = case href of
   Nothing -> Nothing
-  Just h -> Just (href_ . toMisoString $h)
+  Just h -> Just (href_ . toMisoString $ h)
 
 targetAttr :: Config msg -> Maybe (Attribute msg)
 targetAttr (Config {href = href, target = target}) =
   if href /= Nothing
     then case target of
       Nothing -> Nothing
-      Just t -> Just (target_ . toMisoString $t)
+      Just t -> Just (target_ . toMisoString $ t)
     else Nothing
 
 clickHandler :: Config msg -> Maybe (Attribute msg)
