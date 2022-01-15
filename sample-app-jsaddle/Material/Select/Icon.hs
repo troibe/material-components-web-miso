@@ -5,7 +5,7 @@ module Material.Select.Icon
   ( Icon,
     icon,
     customIcon,
-    --, svgIcon
+    -- , svgIcon
     setOnInteraction,
     setDisabled,
   )
@@ -17,7 +17,7 @@ import Miso.String
 
 -- | Icon type
 
---data alias Icon msg =
+-- data alias Icon msg =
 --    Material.Select.Icon.Internal.Icon msg
 
 -- | Material Icon

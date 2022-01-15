@@ -17,7 +17,7 @@ import qualified Miso
 
 -- | Configuration of a select item
 
---data Config a msg =
+-- data Config a msg =
 --    Material.Select.Item.Internal.Config a msg
 
 data InitialConfig a = InitialConfig
@@ -47,7 +47,7 @@ setAttributes additionalAttributes config_ =
 
 -- | Select item type
 
---data SelectItem a msg =
+-- data SelectItem a msg =
 --    Material.Select.Item.Internal.SelectItem a msg
 
 -- | Select item constructor
