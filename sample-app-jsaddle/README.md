@@ -18,7 +18,7 @@ You can now use the repl like you are used to and let your editor interact with 
 nix-shell --run reload
 ```
 
-You should now be able to open your browser to `http://localhost:8080` and see your working application. Subsequent edits of the code should cause a live update of the website at that address.
+You should now be able to open your browser to `http://localhost:8081` and see your working application. Subsequent edits of the code should cause a live update of the website at that address.
 
 To build the application w/ GHCJS, execute the below command.
 
